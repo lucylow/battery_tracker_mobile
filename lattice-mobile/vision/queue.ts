@@ -1,0 +1,10 @@
+import type { CameraMode, ImageAsset, VisionProvider, VisionResult } from "@/vision/types";
+
+export type VisionJobStatus = "queued" | "processing" | "complete" | "failed" | "cancelled";
+export type VisionJob = { id: string; image: ImageAsset; mode: CameraMode; status: VisionJobStatus; progress: number; consentedToRemoteAnalysis: boolean; result?: VisionResult; error?: string };
+export function createVisionJob(image: ImageAsset, mode: CameraMode, consentedToRemoteAnalysis: boolean): VisionJob { return { id: `vision-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, image, mode, status: "queued", progress: 0, consentedToRemoteAnalysis }; }
+export class VisionQueue { private jobs = new Map<string, VisionJob>(); private cancelled = new Set<string>(); constructor(private readonly provider: VisionProvider) {}
+  get(id: string) { return this.jobs.get(id); }
+  async run(job: VisionJob, onUpdate?: (job: VisionJob) => void) { if (!job.consentedToRemoteAnalysis && !job.image.localOnly) { const failed = { ...job, status: "failed" as const, error: "Explicit consent is required before remote image analysis." }; this.jobs.set(job.id, failed); onUpdate?.(failed); return failed; } this.jobs.set(job.id, { ...job, status: "processing", progress: 0.15 }); onUpdate?.(this.jobs.get(job.id)!); try { await new Promise((resolve) => setTimeout(resolve, 50)); if (this.cancelled.has(job.id)) return this.cancel(job.id)!; const result = await this.provider.analyze(job.image, job.mode); const complete = { ...job, status: "complete" as const, progress: 1, result }; this.jobs.set(job.id, complete); onUpdate?.(complete); return complete; } catch (error) { const failed = { ...job, status: "failed" as const, error: error instanceof Error ? error.message : "Vision analysis failed." }; this.jobs.set(job.id, failed); onUpdate?.(failed); return failed; } }
+  cancel(id: string) { this.cancelled.add(id); const job = this.jobs.get(id); if (!job) return undefined; const cancelled = { ...job, status: "cancelled" as const, error: "Analysis cancelled before completion." }; this.jobs.set(id, cancelled); return cancelled; }
+}

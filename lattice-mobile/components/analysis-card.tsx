@@ -1,0 +1,12 @@
+import { useMemo } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import type { ExperimentParameters, ModeledResults } from "@/domain/lattice";
+import { experimentDataset, summarize } from "@/data/analysis";
+
+export function AnalysisCard({ parameters, results }: { parameters: ExperimentParameters; results: ModeledResults }) {
+  const summary = useMemo(() => summarize([results.moirePeriod]), [results.moirePeriod]);
+  const dataset = useMemo(() => experimentDataset([{ twistAngle: parameters.twistAngle, moirePeriod: results.moirePeriod, mismatch: results.mismatch }]), [parameters.twistAngle, results.moirePeriod, results.mismatch]);
+  return <View style={styles.card}><View style={styles.header}><View><Text style={styles.kicker}>LOCAL ANALYSIS</Text><Text style={styles.title}>One-row reproducible snapshot</Text></View><Text style={styles.source}>{dataset.source.kind.toUpperCase()}</Text></View><View style={styles.grid}><Metric label="Mean period" value={`${summary.mean.toFixed(1)} Å`} /><Metric label="Observed rows" value={String(summary.count)} /><Metric label="Missing values" value={String(summary.missing)} /><Metric label="Schema" value={dataset.schemaVersion} /></View><Text style={styles.note}>Summary uses the active experiment only; it does not infer a trend from one observation.</Text></View>;
+}
+function Metric({ label, value }: { label: string; value: string }) { return <View style={styles.metric}><Text style={styles.label}>{label}</Text><Text style={styles.value}>{value}</Text></View>; }
+const styles = StyleSheet.create({ card: { backgroundColor: "#0D1B2E", borderWidth: 1, borderColor: "#27415C", borderRadius: 18, padding: 15, marginTop: 18 }, header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }, kicker: { color: "#65E6E0", fontSize: 10, fontWeight: "800", letterSpacing: 1.2 }, title: { color: "#F4F8FC", fontSize: 15, fontWeight: "800", marginTop: 6 }, source: { color: "#FFC76B", fontSize: 9, fontWeight: "800", letterSpacing: 1 }, grid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 15 }, metric: { width: "48%", backgroundColor: "#13263D", borderRadius: 11, padding: 10 }, label: { color: "#70849A", fontSize: 10, fontWeight: "700" }, value: { color: "#F4F8FC", fontSize: 15, fontWeight: "800", marginTop: 5 }, note: { color: "#9FB0C3", fontSize: 11, lineHeight: 17, marginTop: 13 } });

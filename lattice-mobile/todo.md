@@ -1,0 +1,322 @@
+# Project TODO
+
+- [x] Inspect the LATTICE master build prompt and uploaded reference packs
+- [x] Initialize the Expo React Native TypeScript project
+- [x] Create the content-specific mobile interface design plan
+- [x] Generate and configure the LATTICE app icon and branding assets
+- [x] Implement onboarding with skip and continue flows
+- [x] Implement four-tab navigation: Explore, Lab, Library, Profile
+- [x] Implement LATTICE design tokens and reusable mobile UI primitives
+- [x] Implement Explore screen with functional Start an experiment CTA
+- [x] Implement Lab shell with two-layer experiment composer
+- [x] Implement Library and Profile milestone surfaces
+- [x] Add visualization-ready domain and component boundaries from the visualization code pack
+- [x] Run TypeScript, lint, and unit checks
+- [x] Verify the running application and critical Milestone 1 flows
+- [x] Add curated material catalog and deterministic educational science models
+- [x] Add local experiment persistence and offline draft recovery
+- [ ] Add backend synchronization, authentication, and authorization
+- [ ] Add grounded LATTICE Copilot with retry, caching, quotas, and offline states
+- [ ] Add comparison, JSON export, analytics, observability, privacy controls, and comprehensive QA
+- [x] Add UX goal capture and quick-start presets from the new experience pack
+- [ ] Add progressive disclosure, coachmarks, and contextual parameter explanations
+- [x] Add autosave, undo/redo, interrupted-experiment resume, and recovery states
+- [x] Add explicit offline, loading, error, retry, and reduced-motion UX states
+- [ ] Add search guidance, recent queries, and directed empty-state suggestions
+- [x] Improve next slice: local experiment persistence, autosave, and recovery
+- [x] Improve next slice: material search and progressive material detail
+- [x] Improve next slice: Lab validation, feedback, and accessibility states
+- [x] Add context-aware LATTICE Copilot route with structured educational explanations
+- [x] Add clearer Lab Copilot actions and suggested questions
+- [x] Add resilient recovery-oriented UX for saved and unsaved experiment states
+- [x] Add grounded Copilot domain types, prompt rules, and context builder
+- [x] Add Copilot route with active experiment explanations and suggested prompts
+- [x] Add interactive education card for predict → change → observe → explain
+- [x] Add explicit demo-data and production-configuration boundaries
+- [x] Add AI v2 safety guards, provider routing, context freshness, and response validation
+- [x] Add grounded retrieval/citation contracts without fabricating sources
+- [x] Add Copilot regression and prompt-safety tests
+- [x] Add typed scientific units and provenance metadata to model outputs
+- [x] Add richer deterministic moiré result validity and uncertainty labels
+- [x] Add experiment undo/redo history and clearer result interpretation
+- [x] Add transparent free-tier entitlement modeling without blocking core science
+- [x] Add persisted learning progress and adaptive education state
+- [x] Add experiment comparison and structured JSON export workflows
+- [ ] Add explicit offline, retry, accessibility, and data-source states
+- [x] Add reproducible local dataset types, validation, summaries, and outlier analysis
+- [x] Add onboarding goal capture and persist the learner’s first-use preferences
+- [x] Add reduced-motion preference handling and native share/JSON export boundaries
+- [x] Add a compact Lab analysis surface driven by the active experiment parameters
+- [x] Add comparison snapshots and structured export history
+- [x] Add offline and retry state utilities to the mobile experience
+- [x] Connect the Library comparison surface and verify the app
+- [x] Add comparison route and Lab snapshot actions
+- [x] Add structured export history for local experiment snapshots
+- [x] Add explicit AI task routing and bounded feature metadata
+- [ ] Add transparent plan comparison and server-authoritative entitlement boundary
+- [x] Add offline and retry feedback states to provider-backed surfaces
+- [x] Add production-data mode assertion and placeholder-content guard
+- [x] Add provider-neutral API error and retry contracts without requiring a live backend
+- [x] Add core materials-science concept helpers with explicit educational scope
+- [x] Add persisted onboarding goals and learner preferences
+- [x] Add reduced-motion-aware motion primitives and accessible feedback states
+- [x] Add offline/provider state contracts and connect them to Copilot and Lab surfaces
+- [x] Add persistent accessibility and motion preferences
+- [x] Add network-aware Copilot provider state and bounded retry behavior
+- [x] Connect resilient provider states to Copilot and Profile surfaces
+- [x] Add typed AI workspace and bounded agent state contracts
+- [x] Add safe action preview, approval, rollback, and audit contracts
+- [x] Add persisted multilingual foundation with English fallback and RTL metadata
+- [x] Add privacy-first camera/vision contracts and non-uploading capture boundary
+- [x] Add typed AI workspace and bounded agent state contracts
+- [x] Add safe action preview, approval, rollback, and audit contracts
+- [x] Add persisted multilingual foundation with English fallback and RTL metadata
+- [x] Add privacy-first camera/vision contracts and non-uploading capture boundary
+- [x] Expand localized navigation and core screen copy with English fallback
+- [x] Add accessible AI workspace modes with read-only and approval metadata
+- [x] Add local vision capture review metadata and explicit analysis consent boundary
+- [x] Localize high-traffic Explore, Lab, and Copilot labels with fallback-safe keys
+- [x] Add local image annotation and scale-calibration review primitives
+- [x] Connect capture review metadata and consent states to the mobile flow
+- [x] Add persisted local capture records with provenance and review metadata
+- [x] Add image-library import and cancelable queued vision provider contracts
+- [x] Connect capture records and vision states to the user-facing mobile flow
+- [x] Add a persisted saved-capture gallery and capture detail actions
+- [x] Add cancelable vision queue contracts with explicit consent and retry states
+- [x] Connect queue progress and provenance to saved-capture detail
+- [x] Add persisted capture detail and editable calibration metadata
+- [x] Persist vision queue jobs with retry and resume-after-restart helpers
+- [x] Connect detail and recovery actions to Library and capture review
+- [x] Add persisted vision-job state with retry and resume-after-restart helpers
+- [x] Connect retry and resume states to capture detail and Library
+- [x] Add regression coverage for vision-job persistence and recovery
+- [x] Add deterministic regression coverage for vision-job persistence, retry, cancellation, and resume states
+- [x] Surface persisted vision-job status and retry actions in capture detail
+- [x] Harden persisted vision-job hydration against malformed local storage
+- [x] Verify the capture recovery slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add interactive annotation overlay controls to capture review and detail
+- [x] Add calibration guide geometry and validation feedback
+- [x] Add regression coverage for annotation and calibration helpers
+- [x] Verify the annotation and calibration slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Persist optional scale calibration metadata on saved capture records
+- [x] Improve local annotation editing with label and type controls
+- [x] Add regression coverage for calibration persistence and annotation edits
+- [x] Verify the calibration persistence slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add searchable saved-capture gallery query and mode filters
+- [x] Add vision-job status filters and local recovery summaries to Library
+- [x] Add deterministic regression coverage for capture-gallery filtering helpers
+- [x] Verify the capture-gallery slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add capture sorting by newest, analyzed state, and attention priority
+- [x] Add Library attention summary and quick filter for recovery-needed captures
+- [x] Add deterministic regression coverage for sorting and attention prioritization
+- [x] Verify the Library sorting slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add local capture export payload with annotations, calibration, and provenance
+- [x] Add explicit local-only export action without implicit uploads
+- [x] Add deterministic regression coverage for capture export payloads and privacy boundaries
+- [x] Verify the capture export slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add an in-app provenance preview before sharing capture records
+- [x] Add explicit consent-aware local sharing confirmation
+- [x] Add deterministic regression coverage for preview data and sharing boundary
+- [x] Verify the provenance preview slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add local annotated-image export metadata and share action
+- [x] Add optional redaction of local image URI from shared capture records
+- [x] Add deterministic regression coverage for redaction and annotated export metadata
+- [x] Verify the annotated export slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add rendered annotated-image export alongside the JSON sidecar
+- [x] Add local-only image sharing with graceful platform fallback
+- [x] Add deterministic regression coverage for rendered export metadata and privacy boundary
+- [x] Verify the rendered image export slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add bundled local export package with rendered PNG and provenance JSON sidecar
+- [x] Add native share flow for bundled export with web fallback
+- [x] Add deterministic regression coverage for bundle metadata and fallback boundaries
+- [x] Verify the bundled export slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add bundled-export file checklist to the provenance preview
+- [x] Add explicit package-level share confirmation and privacy labels
+- [x] Add deterministic regression coverage for bundled-export preview contents
+- [x] Verify the bundled-preview slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add dedicated export preview surface with image context
+- [x] Add bundle readiness and file-size estimate details
+- [x] Add deterministic regression coverage for export preview summaries
+- [x] Verify the export preview slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add per-field redaction controls for notes, provenance, and analysis details
+- [x] Preserve redaction choices across JSON sidecar and bundled exports
+- [x] Add deterministic regression coverage for field-level export redaction
+- [x] Verify the redaction-controls slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add locally persisted export preferences for repeat capture exports
+- [x] Add one-tap redact-all preset in the export preview
+- [x] Add deterministic regression coverage for preference normalization and redaction presets
+- [x] Verify the export-preferences slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add local export-history records for bundle and JSON exports
+- [x] Add capture-detail export-history summary without storing image contents
+- [x] Add deterministic regression coverage for history normalization and metadata boundaries
+- [x] Verify the export-history slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add export-history filtering by format and redaction state
+- [x] Add safe per-entry removal and clear-history actions
+- [x] Add dedicated export-history management surface in Profile
+- [x] Add deterministic regression coverage for history filtering and removal
+- [x] Verify the export-history management slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add dedicated searchable export-history route
+- [x] Add persisted export-history filter selection
+- [x] Add deterministic regression coverage for history search and filter preferences
+- [x] Verify the dedicated export-history slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add date-range filtering and newest/oldest ordering for export history
+- [x] Persist export-history view preferences locally
+- [x] Add explicit clear-history confirmation state
+- [x] Add deterministic regression coverage for date filtering and ordering
+- [x] Verify the export-history refinement with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add native-friendly preset date ranges for export history
+- [x] Persist selected date-range preset with existing view preferences
+- [x] Add deterministic regression coverage for preset date-range calculations
+- [x] Verify the date-range preset slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add native-friendly custom date-picker controls for export history
+- [x] Preserve manual web fallback and persisted custom boundaries
+- [x] Add deterministic regression coverage for date serialization and custom ranges
+- [x] Verify the custom date-picker slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure custom date-range validation with ordered-boundary checks
+- [x] Add accessible inline validation feedback to export history
+- [x] Add deterministic regression coverage for valid and invalid ranges
+- [x] Verify the date-validation slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Recover malformed persisted export-history date preferences safely
+- [x] Reset reversed persisted ranges to an explicit safe state
+- [x] Add deterministic regression coverage for persisted-range recovery
+- [x] Verify the preference-recovery slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Detect when persisted export-history preferences are repaired
+- [x] Show accessible repaired-preference feedback after hydration
+- [x] Add deterministic regression coverage for repair detection
+- [x] Verify the repaired-preference feedback slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Audit supplied quantum and chemistry packs against the existing LATTICE architecture
+- [x] Add typed chemistry and quantum primitives with units, assumptions, and validity metadata
+- [x] Add interactive concept learning surface connected to moiré experiments
+- [x] Add deterministic regression coverage for integrated concept models and safety boundaries
+- [x] Verify the integrated concept layer with TypeScript, lint, unit tests, and Expo bundling
+- [x] Improve concept learning with a dedicated concept catalog and clearer progressive disclosure
+- [x] Add compact scientific visualizations for quantum probability and moiré scale context
+- [x] Add deterministic coverage for the new concept navigation and visualization helpers
+- [x] Verify the improvement slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add concept-specific detail routes with context-aware material and Lab links
+- [x] Preserve local-only concept navigation and explicit educational-model scope labels
+- [x] Add deterministic coverage for concept detail routing and context helpers
+- [x] Verify the context-aware learning slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Audit the supplied monetization and 3D visualization code packs against the current LATTICE architecture
+- [x] Add server-authoritative entitlement types and transparent plan comparison helpers
+- [x] Add analytical visualization primitives with units, provenance, validity, and reduced-motion-safe fallbacks
+- [x] Integrate transparent plan and visualization surfaces without locking core science
+- [x] Add deterministic regression coverage and production safety guards for this slice
+- [x] Verify the monetization and visualization integration with TypeScript, lint, unit tests, and Expo bundling
+- [x] Improve analytical visualization controls with explicit quality, legend, and reduced-motion states
+- [x] Add local-first entitlement freshness and unavailable-state messaging
+- [x] Add deterministic coverage for visualization state transitions and entitlement freshness helpers
+- [x] Verify the improvement slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Persist analytical visualization preferences locally across sessions
+- [x] Add resilient entitlement refresh state and explicit offline retry feedback
+- [x] Add deterministic coverage for preference hydration and entitlement refresh contracts
+- [x] Verify the resilience slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add bounded local entitlement cache persistence with safe hydration and repair
+- [x] Add visible last-checked and freshness status to Profile and Plans
+- [x] Add deterministic coverage for entitlement cache expiry and recovery
+- [x] Verify the entitlement cache slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add a unified local settings surface for visualization and entitlement diagnostics
+- [x] Add privacy-conscious reset actions for visualization preferences and entitlement cache
+- [x] Preserve local-first access and explain reset effects clearly
+- [x] Add deterministic coverage for settings normalization and reset behavior
+- [x] Verify the unified settings slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add reusable confirmation text and privacy-scope helpers for destructive local actions
+- [x] Add a unified privacy center for capture, export, and local metadata controls
+- [x] Guard local-settings reset with explicit confirmation and clear consequences
+- [x] Add deterministic coverage for privacy summaries and confirmation helpers
+- [x] Verify the privacy-center slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add capture-detail privacy summary before sharing
+- [x] Add an explicit redact-all export preset with confirmation
+- [x] Preserve local-first export behavior and explain active redactions
+- [x] Add deterministic coverage for capture privacy summaries and preset transitions
+- [x] Verify the capture privacy slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure share-confirmation copy and export-summary helpers
+- [x] Add an explicit final confirmation step before JSON or bundle sharing
+- [x] Preserve active redactions and local-only upload messaging in the confirmation
+- [x] Add deterministic coverage for share-confirmation summaries and cancellation behavior
+- [x] Verify the share-confirmation slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure export-review and post-share outcome helpers
+- [x] Show file-by-file bundle contents and image context in the final review
+- [x] Add success and cancellation feedback after the share flow
+- [x] Add deterministic coverage for review summaries and outcome states
+- [x] Verify the richer export-review slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure export failure and retry-state helpers
+- [x] Add richer native review context with thumbnail and file-size details
+- [x] Add retry feedback for failed JSON or bundle sharing
+- [x] Add deterministic coverage for export failure and retry transitions
+- [x] Verify the export-retry slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure platform-aware export readiness and fallback guidance helpers
+- [x] Explain native bundle support and JSON fallback before sharing
+- [x] Preserve explicit sharing and local-only privacy messaging on every platform
+- [x] Add deterministic coverage for platform readiness states
+- [x] Verify the export-readiness slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add runtime share-capability diagnostics for native and web environments
+- [x] Show platform-specific export help before sharing
+- [x] Keep bundle actions honest when native file sharing is unavailable
+- [x] Add deterministic coverage for share-capability states
+- [x] Verify the capability-diagnostics slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure share-capability diagnostic summary helpers for Privacy Center
+- [x] Add a user-invokable share-support refresh action
+- [x] Explain that capability checks never upload capture content
+- [x] Add deterministic coverage for capability summaries and refresh states
+- [x] Verify the Privacy Center capability slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure last-checked capability metadata helpers
+- [x] Add a local privacy-audit entry for share-capability checks without capture content
+- [x] Surface last-checked metadata in Privacy Center
+- [x] Add deterministic coverage for capability timestamp and audit helpers
+- [x] Verify the capability-metadata slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Persist share-capability availability and last-checked metadata locally
+- [x] Add safe hydration and repair for malformed capability diagnostics
+- [x] Surface a compact share-capability privacy status in Profile
+- [x] Add deterministic coverage for persisted capability state and recovery
+- [x] Verify the capability-persistence slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure stale-state classification for persisted share-capability diagnostics
+- [x] Add a privacy-conscious reset action for capability metadata
+- [x] Surface stale labeling and reset controls in Privacy Center and Profile
+- [x] Add deterministic coverage for stale classification and reset behavior
+- [x] Verify the capability-reset slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure stale-refresh decision helpers for capability diagnostics
+- [x] Refresh persisted share capability when the app returns to focus, without reading capture data
+- [x] Surface a compact stale-status badge in Capture Detail before sharing
+- [x] Add deterministic coverage for refresh decisions and stale badge states
+- [x] Verify the app-focus capability slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure capability action and status helpers for direct refresh feedback
+- [x] Surface stale or unknown share status as a compact Profile badge
+- [x] Add a direct share-support refresh action in Capture Detail
+- [x] Add deterministic coverage for badge and refresh outcome states
+- [x] Verify the capability-affordance slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure refresh-outcome copy for app-focus and manual capability checks
+- [x] Show a compact stale or unverified badge beside the Capture Detail share action
+- [x] Surface successful refresh feedback without exposing capture data
+- [x] Add deterministic coverage for refresh outcomes and badge labels
+- [x] Verify the refresh-feedback slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add pure capability badge presentation helpers for the primary share action
+- [x] Show compact stale or unverified status beside the Capture Detail share action
+- [x] Clarify automatic versus manual refresh feedback without exposing capture data
+- [x] Add deterministic coverage for badge presentation and refresh feedback
+- [x] Verify the share-action affordance slice with TypeScript, lint, unit tests, and Expo bundling
+- [x] Add a concise share-capability status explanation for export review
+- [x] Clarify what native-ready, JSON-fallback, stale, and unverified states mean
+- [x] Preserve explicit sharing and no-upload messaging
+- [x] Add deterministic coverage for capability guidance copy
+- [x] Verify the capability-guidance slice with TypeScript, lint, unit tests, and Expo bundling
+
+- [x] Add concept-specific detail routes with context-aware material and Lab links
+- [x] Preserve local-only concept navigation and explicit educational-model scope labels
+- [x] Add deterministic coverage for concept detail routing and context helpers
+- [x] Verify the context-aware learning slice with TypeScript, lint, unit tests, and Expo bundling
+
+- [x] Add related-concept navigation to concept detail screens
+- [x] Preserve local-only navigation and educational scope messaging across related links
+- [x] Add deterministic coverage for related-concept selection
+- [x] Verify the related-concept slice with TypeScript, lint, unit tests, and Expo bundling
+
+- [x] Add local concept-detail completion persistence
+- [x] Surface completed state in Concept Atlas and detail screens
+- [x] Add deterministic coverage for concept-progress normalization and toggling
+- [x] Verify the concept-progress slice with TypeScript, lint, unit tests, and Expo bundling
+
+- [x] Add a user-confirmed local concept-progress reset action
+- [x] Keep reset scope limited to concept progress and provide accessible feedback
+- [x] Add deterministic coverage for reset-state behavior
+- [x] Verify the progress-reset slice with TypeScript, lint, unit tests, and Expo bundling

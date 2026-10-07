@@ -1,0 +1,11 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { ImageAsset } from "@/vision/types";
+import type { Annotation, ScaleCalibration } from "@/vision/review";
+
+export type CaptureRecord = { id: string; image: ImageAsset; note: string; annotations: Annotation[]; mode: string; remoteConsent: boolean; createdAt: string; provenance: string[]; calibration?: ScaleCalibration };
+const KEY = "lattice.capture-records.v1";
+type CaptureContext = { records: CaptureRecord[]; isHydrated: boolean; saveRecord: (record: CaptureRecord) => void; updateRecord: (id: string, patch: Partial<CaptureRecord>) => void; removeRecord: (id: string) => void };
+const Context = createContext<CaptureContext | null>(null);
+export function CaptureProvider({ children }: { children: ReactNode }) { const [records, setRecords] = useState<CaptureRecord[]>([]); const [isHydrated, setHydrated] = useState(false); useEffect(() => { void AsyncStorage.getItem(KEY).then((raw) => { if (raw) setRecords(JSON.parse(raw) as CaptureRecord[]); setHydrated(true); }).catch(() => setHydrated(true)); }, []); const persist = useCallback((next: CaptureRecord[]) => { setRecords(next); void AsyncStorage.setItem(KEY, JSON.stringify(next)); }, []); const saveRecord = useCallback((record: CaptureRecord) => persist([record, ...records.filter((item) => item.id !== record.id)].slice(0, 24)), [persist, records]); const updateRecord = useCallback((id: string, patch: Partial<CaptureRecord>) => persist(records.map((item) => item.id === id ? { ...item, ...patch } : item)), [persist, records]); const removeRecord = useCallback((id: string) => persist(records.filter((item) => item.id !== id)), [persist, records]); const value = useMemo(() => ({ records, isHydrated, saveRecord, updateRecord, removeRecord }), [records, isHydrated, saveRecord, updateRecord, removeRecord]); return <Context.Provider value={value}>{children}</Context.Provider>; }
+export function useCaptures() { const value = useContext(Context); if (!value) throw new Error("useCaptures must be used inside CaptureProvider"); return value; }

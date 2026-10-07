@@ -1,0 +1,15 @@
+import { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { normalizeAnnotationPoint } from "@/vision/review";
+import type { ImageAsset } from "@/vision/types";
+import { calibrationGuide, type Annotation, type ScaleCalibration } from "@/vision/review";
+
+type Props = { image: ImageAsset; annotations: Annotation[]; calibration: ScaleCalibration | null; onAddPoint?: (x: number, y: number) => void; onRemove?: (id: string) => void; onUpdate?: (annotation: Annotation) => void; accessibilityLabel?: string };
+
+export function CaptureAnnotationOverlay({ image, annotations, calibration, onAddPoint, onRemove, onUpdate, accessibilityLabel = "Captured image" }: Props) {
+  const guide = calibrationGuide(calibration, image);
+  const [frame, setFrame] = useState({ width: 0, height: 0 });
+  return <View style={styles.frame} onLayout={(event) => setFrame({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height })} onTouchEnd={(event) => { if (onAddPoint) onAddPoint(normalizeAnnotationPoint(event.nativeEvent.locationX, event.nativeEvent.locationY, frame.width, frame.height).x ?? 0, normalizeAnnotationPoint(event.nativeEvent.locationX, event.nativeEvent.locationY, frame.width, frame.height).y ?? 0); }} accessible accessibilityLabel={accessibilityLabel}><Image source={{ uri: image.uri }} style={styles.image} resizeMode="contain" />{annotations.filter((item) => item.x !== undefined && item.y !== undefined).map((item) => <Pressable key={item.id} onPress={() => onRemove?.(item.id)} style={[styles.marker, { left: `${(item.x ?? 0) * 100}%`, top: `${(item.y ?? 0) * 100}%` }]} accessibilityRole="button" accessibilityLabel={item.text ? `Remove annotation ${item.text}` : "Remove annotation"}><View style={item.type === "box" ? styles.box : styles.dot} /><Text style={styles.markerLabel}>{item.text ?? item.type}</Text></Pressable>)}{guide && <View pointerEvents="none" style={[styles.guide, { left: `${guide.x * 100}%`, top: `${guide.y * 100}%`, width: `${guide.width * 100}%` }]}><View style={styles.guideLine} /><Text style={styles.guideLabel}>{guide.label}</Text></View>}</View>;
+}
+
+const styles = StyleSheet.create({ frame: { width: "100%", flex: 1, minHeight: 220, overflow: "hidden", borderRadius: 18, backgroundColor: "#0D1B2E", position: "relative" }, image: { width: "100%", height: "100%" }, marker: { position: "absolute", transform: [{ translateX: -10 }, { translateY: -10 }], alignItems: "center" }, dot: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: "#65E6E0", backgroundColor: "rgba(101,230,224,.25)" }, box: { width: 32, height: 24, borderWidth: 2, borderColor: "#FFB86B", backgroundColor: "rgba(255,184,107,.14)" }, markerLabel: { color: "#F4F8FC", backgroundColor: "rgba(7,17,31,.82)", fontSize: 9, marginTop: 3, paddingHorizontal: 4, borderRadius: 4 }, guide: { position: "absolute", alignItems: "flex-start" }, guideLine: { width: "100%", height: 3, backgroundColor: "#9B8CFF", borderRadius: 2 }, guideLabel: { color: "#D9D4FF", backgroundColor: "rgba(22,21,46,.9)", fontSize: 9, marginTop: 3, paddingHorizontal: 4, borderRadius: 4 } });
