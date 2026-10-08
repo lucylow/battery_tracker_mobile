@@ -1,465 +1,488 @@
 # 🔋 BatteryLens
 
-### Personal Battery Intelligence for Phones, Laptops, E-Bikes, EVs & Connected Devices 
+### AI-Native Battery Telemetry, Health Intelligence & Energy-Aware Device Management
 
-> **Understand your battery. Anticipate patterns. Act before downtime.**
+> **Observe battery state. Learn individual behavior. Detect change. Explain why. Predict what may happen next.**
 
-BatteryLens is a privacy-first battery intelligence platform that transforms raw battery and charging telemetry into understandable insights, predictive trends, smart charging reminders, connected-device dashboards, and fleet-level battery visibility.
+BatteryLens is a privacy-first battery intelligence platform built around **battery telemetry rather than battery percentage alone**. The system is designed to collect heterogeneous device observations, normalize them into a common domain model, build personalized baselines, detect behavioral anomalies, estimate charging and degradation trends, and convert machine-generated signals into evidence-backed user experiences.
 
-Instead of functioning as another simple battery-percentage application, BatteryLens is designed as an intelligent layer between the devices people depend on and the decisions they need to make.
+The repository is designed around a React Native + TypeScript mobile client with native iOS/Android integration, local persistence, modular ecosystem adapters, optional cloud synchronization, and an AI layer that can operate locally or through a secure server-side gateway.
 
-```text
-┌───────────────────────────────────────────────────────────────┐
-│                         BATTERYLENS                           │
-├───────────────────────────────────────────────────────────────┤
-│                                                               │
-│  MONITOR → UNDERSTAND → PREDICT → REMIND → MANAGE → OPTIMIZE │
-│                                                               │
-│  Battery        AI          Trends      Alerts     Fleet      │
-│  Charging       Insights    Forecasts   Schedules  Ecosystem  │
-│  Temperature    Explain     Patterns    Smart      Devices   │
-│  Power          Evidence    Risk        Charging  Reports    │
-│                                                               │
-└───────────────────────────────────────────────────────────────┘
-```
+> **Important:** this README intentionally distinguishes **measured**, **calculated**, **estimated**, **AI-generated**, and **unavailable** values. BatteryLens should never manufacture telemetry that a device or platform does not expose.
 
 ---
 
-# 📖 Table of Contents
+## 🧠 What BatteryLens Is
 
-* [Overview](#-overview)
-* [Why BatteryLens](#-why-batterylens)
-* [Product Vision](#-product-vision)
-* [Core Features](#-core-features)
-* [Architecture](#-architecture)
-* [Technical Architecture Diagram](#-technical-architecture-diagram)
-* [React Native Architecture](#-react-native-architecture)
-* [Battery Intelligence Engine](#-battery-intelligence-engine)
-* [Predictive Health AI](#-predictive-health-ai)
-* [AI Assistant](#-ai-assistant)
-* [Smart Charging](#-smart-charging)
-* [Widget-First UX](#-widget-first-ux)
-* [Zero-Configuration Setup](#-zero-configuration-setup)
-* [Smart Ecosystem Sync](#-smart-ecosystem-sync)
-* [Family & Fleet Tracking](#-family--fleet-tracking)
-* [Privacy Architecture](#-privacy-architecture)
-* [Monetization](#-monetization)
-* [Data Model](#-data-model)
-* [API Architecture](#-api-architecture)
-* [Project Structure](#-project-structure)
-* [Installation](#-installation)
-* [Environment Configuration](#-environment-configuration)
-* [Android Development](#-android-development)
-* [iOS Development](#-ios-development)
-* [Testing](#-testing)
-* [CI/CD](#-cicd)
-* [Security](#-security)
-* [Performance](#-performance)
-* [Observability](#-observability)
-* [Roadmap](#-roadmap)
-* [Contributing](#-contributing)
-* [License](#-license)
+BatteryLens is an **intelligence layer for energy-dependent devices**.
 
----
-
-# 🚀 Overview
-
-BatteryLens is built around a simple idea:
-
-> **Battery data becomes much more valuable when it is contextualized over time.**
-
-A normal operating-system battery screen might show:
+Instead of displaying:
 
 ```text
 82%
 Charging
 ```
 
-BatteryLens turns this into:
+BatteryLens aims to produce a structured state:
 
 ```text
-82%
-Charging
-
-18.4 W estimated charging power
-
-42 min estimated to target
-
-Your charging speed is close to
-your recent personal baseline.
-
-Temperature:
-31°C
-
-Today's charging:
-2 sessions
-
-Weekly charging:
-8 sessions
+Battery State
+├── Level: 82%                         [MEASURED]
+├── Charging: true                     [MEASURED]
+├── Voltage: 4.20 V                    [MEASURED / platform dependent]
+├── Current: 2.10 A                    [MEASURED / platform dependent]
+├── Power: 8.82 W                      [CALCULATED]
+├── Charging ETA: 42 min               [ESTIMATED]
+├── Personal baseline delta: +4.1%     [CALCULATED]
+├── Anomaly score: 0.12                [MODEL OUTPUT]
+├── Condition: Good                    [ESTIMATED / HEURISTIC]
+└── AI explanation                     [AI-GENERATED]
 ```
 
-And eventually:
+The core transformation is:
 
-```text
-BatteryLens AI
-
-Your recent charging pattern is
-consistent with your historical baseline.
-
-No unusual temperature trend
-was detected in the available data.
-
-Confidence:
-Medium
+```mermaid
+flowchart LR
+    A[Raw Device Telemetry] --> B[Capability Detection]
+    B --> C[Validation & Normalization]
+    C --> D[Local Storage]
+    D --> E[Feature Engineering]
+    E --> F[Personal Baselines]
+    F --> G[Anomaly Detection]
+    F --> H[Trend / Forecast Models]
+    G --> I[Evidence Graph]
+    H --> I
+    I --> J[AI Reasoning Layer]
+    J --> K[Insights / Alerts / Reports]
+    K --> L[Mobile UI / Widgets / Fleet]
 ```
-
-The platform is designed to work across multiple levels:
-
-```text
-                         BatteryLens
-                              │
-       ┌──────────────────────┼─────────────────────┐
-       │                      │                     │
-    Personal               Family                Business
-       │                      │                     │
-   One device            Shared devices        Fleet devices
-   Battery AI            Shared alerts         Fleet alerts
-   Smart charging        Household view        Fleet reports
-   Widgets               Permissions            AI summaries
-       │                      │                     │
-       └──────────────────────┼─────────────────────┘
-                              │
-                       Connected Ecosystem
-                              │
-                 ┌────────────┼────────────┐
-                 │            │            │
-             Smart Plugs  Home Assistant  HomeKit
-                 │            │            │
-                 └────────────┼────────────┘
-                              │
-                             AI
-```
-
----
-
-# 💡 Why BatteryLens
-
-Battery monitoring applications frequently stop at:
-
-* battery percentage
-* charging state
-* temperature
-* voltage
-* basic statistics
-
-BatteryLens attempts to solve a larger problem:
-
-### 1. Users need context
-
-A single battery percentage says little about:
-
-* historical charging patterns
-* charging consistency
-* unusual heat exposure
-* changing discharge behavior
-* device-to-device differences
-
-### 2. Users need action
-
-BatteryLens turns measurements into:
-
-```text
-Measurement
-↓
-Interpretation
-↓
-Recommendation
-↓
-Optional Reminder
-```
-
-### 3. Families need visibility
-
-A household may contain:
-
-```text
-Phone
-Tablet
-Laptop
-E-bike
-Power station
-```
-
-BatteryLens can consolidate supported devices into one view.
-
-### 4. Businesses need operational awareness
-
-Small teams may manage:
-
-```text
-delivery phones
-tablets
-barcode scanners
-laptops
-e-bikes
-power stations
-```
-
-A low-battery or offline device can become an operational problem.
-
-BatteryLens Fleet is designed to surface those issues before they become surprises.
 
 ---
 
 # 🎯 Product Vision
 
-BatteryLens aims to become:
+BatteryLens is designed to evolve from a battery monitor into a **continuous battery intelligence platform** spanning:
 
-> **A privacy-first intelligence layer for the batteries and energy-dependent devices people rely on every day.**
+- phones
+- tablets
+- laptops
+- e-bikes
+- power stations
+- power tools
+- smart plugs
+- chargers
+- EV integrations
+- other supported energy-aware devices
 
-The long-term architecture is:
+Long-term product direction:
 
 ```text
-                    RAW DEVICE SIGNALS
-                           │
-                           ▼
-                  NORMALIZATION ENGINE
-                           │
-                           ▼
-                  LOCAL DATA PLATFORM
-                           │
-             ┌─────────────┼─────────────┐
-             ▼             ▼             ▼
-         HISTORY        BASELINES     CAPABILITIES
-             │             │             │
-             └─────────────┼─────────────┘
-                           ▼
-                 BATTERY INTELLIGENCE
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-       Insights        Prediction        Alerts
-          │                │                │
-          └────────────────┼────────────────┘
-                           ▼
-                         AI
-                           │
-                           ▼
-                  ACTIONABLE EXPERIENCE
-                           │
-        ┌──────────────────┼──────────────────┐
-        ▼                  ▼                  ▼
-     Personal           Family             Fleet
+                    ┌─────────────────────────┐
+                    │      BATTERYLENS AI      │
+                    └────────────┬────────────┘
+                                 │
+          ┌──────────────────────┼──────────────────────┐
+          │                      │                      │
+       PERSONAL               FAMILY                BUSINESS
+          │                      │                      │
+     One device            Shared devices          Fleet devices
+     Personal AI           Household AI            Fleet AI
+     Smart charging        Shared alerts           Risk detection
+     History               Reports                 Operational reports
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+                      COMMON BATTERY GRAPH
+                                 │
+                    TELEMETRY + EVENTS + CONTEXT
+```
+
+The product moat is not simply collecting more measurements. It is creating a **personalized longitudinal representation of battery behavior** that can support better explanations and better forecasts over time.
+
+---
+
+# 🧩 Core System Principles
+
+| Principle | Engineering meaning |
+|---|---|
+| **Local-first** | Core monitoring and history remain usable without a network connection. |
+| **Evidence-first AI** | AI outputs must be grounded in structured observations or clearly labeled estimates. |
+| **Capability-aware** | The application adapts to platform/device telemetry capabilities instead of assuming every metric exists. |
+| **Event-driven** | Prefer native events, adaptive sampling, and batched writes over constant polling. |
+| **Explainable** | Important insights expose the measurements and transformations behind the conclusion. |
+| **Privacy-first** | Detailed battery history is not treated as generic product analytics. |
+| **Modular integrations** | Device ecosystems are implemented as adapters behind common interfaces. |
+| **Uncertainty-aware** | Predictions return ranges/confidence instead of false precision. |
+| **Graceful degradation** | Missing permissions, unavailable metrics, and offline services should not break the core experience. |
+| **Energy-aware** | The monitoring application itself must minimize CPU, network, sensor, and database overhead. |
+
+---
+
+# ⚙️ High-Level Technical Architecture
+
+```mermaid
+flowchart TB
+    subgraph DEVICE_LAYER[Device & OS Layer]
+        IOS[iOS Battery / Native APIs]
+        AND[Android BatteryManager / OS Events]
+        BLE[Bluetooth / Nearby Devices]
+        HK[HomeKit]
+        HA[Home Assistant]
+        MATTER[Matter / Future Adapters]
+        PLUG[Smart Plugs]
+        EV[EV / E-bike Adapters]
+    end
+
+    subgraph MOBILE[React Native Mobile Runtime]
+        INGEST[Telemetry Ingestion]
+        NORMALIZE[Normalization]
+        STATE[State Store]
+        DB[(Local Database)]
+        SESSION[Session Engine]
+        FEATURE[Feature Engineering]
+        HEALTH[Battery Health Engine]
+        ANOMALY[Anomaly Engine]
+        PREDICT[Prediction Engine]
+        INSIGHT[Insight Engine]
+        NOTIFY[Notification Engine]
+    end
+
+    subgraph AI[AI Intelligence Plane]
+        EVIDENCE[Evidence Builder]
+        RULES[Deterministic Rules]
+        LOCALAI[Local AI / Heuristics]
+        GATEWAY[Secure AI Gateway]
+        MODEL[Cloud Model Provider]
+        EVAL[AI Evaluation]
+    end
+
+    subgraph EXPERIENCE[Experience Layer]
+        APP[Mobile UI]
+        WIDGETS[Widgets]
+        LOCK[Lock Screen]
+        FAMILY[Family Dashboard]
+        FLEET[Fleet Dashboard]
+        REPORTS[Reports]
+    end
+
+    IOS --> INGEST
+    AND --> INGEST
+    BLE --> INGEST
+    HK --> INGEST
+    HA --> INGEST
+    MATTER --> INGEST
+    PLUG --> INGEST
+    EV --> INGEST
+
+    INGEST --> NORMALIZE
+    NORMALIZE --> STATE
+    NORMALIZE --> DB
+    DB --> SESSION
+    SESSION --> FEATURE
+    FEATURE --> HEALTH
+    FEATURE --> ANOMALY
+    FEATURE --> PREDICT
+    HEALTH --> EVIDENCE
+    ANOMALY --> EVIDENCE
+    PREDICT --> EVIDENCE
+    RULES --> EVIDENCE
+    EVIDENCE --> LOCALAI
+    EVIDENCE --> GATEWAY
+    GATEWAY --> MODEL
+    MODEL --> GATEWAY
+    GATEWAY --> INSIGHT
+    LOCALAI --> INSIGHT
+    EVAL -. validates .-> LOCALAI
+    EVAL -. validates .-> MODEL
+
+    INSIGHT --> APP
+    INSIGHT --> WIDGETS
+    INSIGHT --> LOCK
+    INSIGHT --> FAMILY
+    INSIGHT --> FLEET
+    INSIGHT --> REPORTS
+    NOTIFY --> APP
 ```
 
 ---
 
-# ✨ Core Features
+# 🔬 Telemetry Intelligence Pipeline
 
-## Battery Monitoring
-
-BatteryLens can display supported measurements including:
-
-* Battery level
-* Charging state
-* Power source
-* Temperature
-* Voltage
-* Current
-* Estimated charging power
-* Charging ETA
-* Device capabilities
-
-Where a platform does not expose a metric, BatteryLens reports:
-
-```text
-Unavailable on this device
-```
-
-It does **not** fabricate measurements.
-
----
-
-## Charging Sessions
-
-BatteryLens automatically detects supported charging transitions.
-
-Example:
-
-```text
-7:10 AM
-Battery: 28%
-
-↓ Charger connected
-
-7:10–7:58 AM
-
-Battery:
-28% → 81%
-
-Duration:
-48 minutes
-```
-
-A session becomes structured historical data.
-
----
-
-## Smart Charging Alerts
-
-Users can configure targets such as:
-
-```text
-80%
-85%
-90%
-95%
-100%
-```
-
-BatteryLens can notify the user when a selected target is reached.
-
-Importantly, the application distinguishes between:
-
-```text
-Reminder
-Automation
-Hardware control
-```
-
-A notification does not physically stop charging unless an explicitly supported integration provides that capability.
-
----
-
-# 🧠 AI Layer
-
-BatteryLens includes a layered intelligence model.
-
-```text
-                    AI SYSTEM
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-      Local          Hybrid         Cloud
-        │              │              │
-     Rules       Local + Cloud    Optional LLM
-        │              │              │
-        └──────────────┼──────────────┘
-                       │
-                Evidence Layer
-                       │
-                Confidence Layer
-                       │
-              User-Facing Insight
-```
-
-The local layer can calculate:
-
-* personalized baselines
-* charging trends
-* discharge rates
-* anomaly scores
-* temperature exposure
-* charging consistency
-* trend changes
-
-Cloud AI can optionally provide:
-
-* natural-language explanations
-* long-form reports
-* conversational analysis
-* cross-device summaries
-
-Cloud AI is optional.
-
----
-
-# 🔮 Predictive Health AI
-
-BatteryLens does **not** claim to know an exact battery failure date from ordinary smartphone telemetry.
-
-Instead, the predictive system produces:
-
-```text
-Estimated degradation trend
-+
-Probable horizon
-+
-Uncertainty range
-+
-Confidence
-+
-Evidence
-```
-
-Example:
-
-```text
-BatteryLens Prediction
-
-Current trend:
-Stable
-
-Estimated condition:
-Good
-
-Observed trend:
-Slightly declining
-
-Projected horizon:
-240–360 days
-
-Confidence:
-Medium
-
-Evidence:
-• 92 days of observations
-• 41 charging sessions
-• Temperature trend
-• Discharge trend
-```
-
-This architecture intentionally avoids false precision.
-
----
-
-# 🧮 Predictive Pipeline
+BatteryLens is structured as a telemetry pipeline.
 
 ```mermaid
 flowchart TD
-    A[Battery Observations] --> B[Data Validation]
-    B --> C[Feature Extraction]
-    C --> D[Personal Baseline]
-    D --> E[Trend Analysis]
-    E --> F[Anomaly Detection]
-    F --> G[Degradation Model]
-    G --> H[Uncertainty Estimation]
-    H --> I[Confidence Scoring]
-    I --> J[AI Explanation]
-    J --> K[User Interface]
+    A[Native Observation] --> B{Metric Available?}
+    B -->|No| C[Mark UNAVAILABLE]
+    B -->|Yes| D[Type / Range Validation]
+    D --> E[Timestamp Normalization]
+    E --> F[Unit Normalization]
+    F --> G[Deduplication]
+    G --> H[Local Persistence]
+    H --> I[Session Detection]
+    I --> J[Feature Engineering]
+    J --> K[Baseline Update]
+    K --> L[Inference]
+```
+
+### Canonical observation model
+
+```ts
+export type ObservationSource =
+  | "ios-native"
+  | "android-native"
+  | "bluetooth"
+  | "homekit"
+  | "homeassistant"
+  | "matter"
+  | "smart-plug"
+  | "ev-adapter"
+  | "mock";
+
+export type DataQuality =
+  | "measured"
+  | "calculated"
+  | "estimated"
+  | "ai-generated"
+  | "unavailable";
+
+export interface BatteryObservation {
+  id: string;
+  deviceId: string;
+  timestamp: number;
+  source: ObservationSource;
+
+  level?: number;
+  charging?: boolean;
+  temperatureC?: number;
+  voltageV?: number;
+  currentA?: number;
+  powerW?: number;
+
+  quality: DataQuality;
+  confidence?: number;
+}
+```
+
+The domain model should preserve **provenance** rather than flattening every value into a number.
+
+---
+
+# 🧮 Feature Engineering
+
+The AI layer should not reason directly over raw UI state. A deterministic feature layer converts telemetry into reusable model inputs.
+
+Example derived features:
+
+```text
+instantPowerW
+rollingAveragePowerW
+rollingDischargeRatePctPerHour
+rollingChargeRatePctPerHour
+sessionDurationMinutes
+sessionLevelDeltaPct
+temperatureDeltaFromBaseline
+temperatureExposureMinutes
+chargeInterruptionCount
+rapidDischargeEventCount
+chargingConsistencyScore
+samplingGapSeconds
+stalenessSeconds
+```
+
+Example TypeScript contract:
+
+```ts
+export interface BatteryFeatures {
+  averageLevelPct: number;
+  chargeRatePctPerHour?: number;
+  dischargeRatePctPerHour?: number;
+  averageTemperatureC?: number;
+  peakTemperatureC?: number;
+  averagePowerW?: number;
+  sessionCount: number;
+  interruptedSessions: number;
+  rapidDischargeEvents: number;
+  baselineDelta?: number;
+  anomalyScore?: number;
+}
+```
+
+### Feature pipeline
+
+```mermaid
+flowchart LR
+    RAW[Raw Samples] --> WINDOW[Time Windowing]
+    WINDOW --> AGG[Rolling Aggregates]
+    AGG --> RATE[Charge / Discharge Rates]
+    AGG --> TEMP[Temperature Exposure]
+    AGG --> SESSION[Session Features]
+    AGG --> GAP[Data Quality / Sampling Gaps]
+    RATE --> VECTOR[Feature Vector]
+    TEMP --> VECTOR
+    SESSION --> VECTOR
+    GAP --> VECTOR
+    VECTOR --> MODELS[Inference Engines]
 ```
 
 ---
 
-# 🧠 Predictive Data Model
+# 🧠 Personalized Baseline Engine
+
+A battery can behave differently across devices and users. BatteryLens therefore treats the user/device baseline as a first-class object.
+
+```mermaid
+flowchart TD
+    A[Historical Telemetry] --> B[Clean Samples]
+    B --> C[Segment by Context]
+    C --> D{Enough Data?}
+    D -->|No| E[Insufficient Evidence]
+    D -->|Yes| F[Compute Baseline]
+    F --> G[Rolling Baseline]
+    F --> H[Charging Baseline]
+    F --> I[Discharge Baseline]
+    F --> J[Temperature Baseline]
+    F --> K[Schedule Baseline]
+```
+
+A baseline can contain:
+
+```ts
+export interface PersonalBaseline {
+  deviceId: string;
+  windowDays: number;
+
+  typicalChargeRate?: {
+    median: number;
+    p10: number;
+    p90: number;
+  };
+
+  typicalDischargeRate?: {
+    median: number;
+    p10: number;
+    p90: number;
+  };
+
+  typicalTemperatureC?: {
+    median: number;
+    p10: number;
+    p90: number;
+  };
+
+  confidence: "low" | "medium" | "high";
+  sampleCount: number;
+  updatedAt: number;
+}
+```
+
+The important design choice is that a baseline describes **the user's device over time**, not an arbitrary global "normal".
+
+---
+
+# 🚨 Anomaly Detection
+
+BatteryLens can identify behavior that differs from a device's historical baseline.
+
+Example signals:
+
+```text
+Unexpectedly high discharge rate
+Unexpectedly slow charging
+Temperature outside personal range
+Unusually long charging session
+Frequent charging interruptions
+Sudden change in daily battery behavior
+Stale telemetry / missing observations
+```
+
+### Hybrid anomaly architecture
+
+```mermaid
+flowchart LR
+    FEATURES[Feature Vector] --> RULES[Deterministic Rules]
+    FEATURES --> STATS[Statistical Baseline]
+    FEATURES --> MODEL[Optional ML Model]
+    RULES --> SCORE[Anomaly Score]
+    STATS --> SCORE
+    MODEL --> SCORE
+    SCORE --> GATE{Evidence Threshold}
+    GATE -->|Low| NONE[No Insight]
+    GATE -->|Medium| REVIEW[Low-confidence Insight]
+    GATE -->|High| ALERT[Actionable Alert]
+```
+
+Example contract:
+
+```ts
+export interface AnomalyResult {
+  score: number;
+  severity: "none" | "low" | "medium" | "high";
+  signals: AnomalySignal[];
+  generatedAt: number;
+}
+
+export interface AnomalySignal {
+  metric: string;
+  observed: number;
+  baseline?: number;
+  deviation?: number;
+  reason: string;
+}
+```
+
+### Evidence rule
+
+An anomaly should never become a user-facing claim without retaining the input signals that caused the score.
+
+---
+
+# 🔮 Predictive Battery Intelligence
+
+BatteryLens should avoid false precision such as:
+
+```text
+"Your battery will fail in exactly 287 days."
+```
+
+Instead, predictive outputs should represent uncertainty:
+
+```text
+Condition estimate: Good
+Trend: Slightly declining
+Projected horizon: 240–360 days
+Confidence: Medium
+Evidence: 92 days of observations
+```
+
+### Prediction pipeline
+
+```mermaid
+flowchart TD
+    A[Historical Samples] --> B[Data Quality Filter]
+    B --> C[Feature Extraction]
+    C --> D[Trend Estimation]
+    D --> E[Change Point Detection]
+    E --> F[Degradation Model]
+    F --> G[Uncertainty Model]
+    G --> H[Confidence Calibration]
+    H --> I[Evidence Package]
+    I --> J[AI Explanation]
+```
+
+### Prediction schema
 
 ```ts
 export interface BatteryPrediction {
-  predictedCondition: number;
-
+  predictedCondition: number | null;
   horizonDays: number | null;
-
   lowerBoundDays: number | null;
-
   upperBoundDays: number | null;
 
-  confidence:
-    | "low"
-    | "medium"
-    | "high";
+  confidence: "low" | "medium" | "high";
 
   evidence: PredictionEvidence[];
-
+  limitations: string[];
   generatedAt: number;
 }
 
@@ -473,1232 +496,396 @@ export interface PredictionEvidence {
     | "usage";
 
   contribution: number;
-
-  direction:
-    | "positive"
-    | "negative"
-    | "neutral";
-
+  direction: "positive" | "negative" | "neutral";
   explanation: string;
 }
 ```
 
+The prediction engine is an **estimation subsystem**, not a hardware diagnostic replacement.
+
 ---
 
-# 🤖 AI Provider Architecture
+# 🤖 AI Architecture
+
+BatteryLens uses a layered intelligence design rather than placing an LLM directly in the critical telemetry path.
 
 ```mermaid
-flowchart LR
-    UI[React Native UI]
-    MANAGER[AI Manager]
-    LOCAL[Local AI]
-    CLOUD[Secure AI Gateway]
-    LLM[Model Provider]
-
-    UI --> MANAGER
-    MANAGER --> LOCAL
-    MANAGER --> CLOUD
-    CLOUD --> LLM
+flowchart TB
+    UI[User / Fleet UI] --> ORCH[AI Orchestrator]
+    ORCH --> CONTEXT[Context Builder]
+    CONTEXT --> EVIDENCE[Evidence Graph]
+    EVIDENCE --> RULES[Deterministic Domain Logic]
+    EVIDENCE --> LOCAL[Local Heuristics / Local AI]
+    EVIDENCE --> CLOUD[Secure AI Gateway]
+    CLOUD --> LLM[Model Provider]
+    RULES --> VALIDATOR[Output Validator]
+    LOCAL --> VALIDATOR
+    LLM --> VALIDATOR
+    VALIDATOR --> RESPONSE[Structured AI Response]
+    RESPONSE --> UI
 ```
 
-The client must never contain privileged model-provider API keys.
+### Why the LLM is not the source of truth
+
+The model should explain or synthesize trusted data rather than invent device measurements.
+
+```text
+Telemetry ────────┐
+                  ├──> Evidence Builder ──> AI Context ──> Model
+Derived features ─┤                               │
+Baselines ────────┤                               ▼
+Prediction output ┘                         Structured Output
+                                                     │
+                                                     ▼
+                                              Validation Layer
+```
 
 ---
 
-# 💬 AI Assistant
+# 🧠 Evidence Graph
 
-Users can ask:
+A core AI concept is the **evidence graph**: a structured representation of what the system knows, how it was derived, and how confident it is.
+
+```ts
+export interface EvidenceNode {
+  id: string;
+  type:
+    | "measurement"
+    | "calculation"
+    | "estimate"
+    | "prediction"
+    | "historical-baseline"
+    | "user-input";
+  metric: string;
+  value?: number | string | boolean;
+  unit?: string;
+  timestamp?: number;
+  source?: string;
+  confidence?: number;
+}
+
+export interface EvidenceRelation {
+  from: string;
+  to: string;
+  relation:
+    | "derived-from"
+    | "deviates-from"
+    | "supports"
+    | "contradicts"
+    | "predicts";
+}
+```
+
+This model makes it possible to answer:
+
+```text
+Why did the AI say this?
+↓
+Which observations were used?
+↓
+Which values were measured?
+↓
+Which values were calculated?
+↓
+Which parts are only estimated?
+```
+
+---
+
+# 💬 AI Battery Assistant
+
+Example supported questions:
 
 ```text
 Why did my battery drop quickly?
-
-How was my charging today?
-
+How was charging today?
 Is my charging speed changing?
-
-What patterns do you see?
-
-Why is today's temperature higher?
+Was today's temperature unusual?
+What changed compared with last week?
+Which device needs attention first?
+Why did I receive this battery alert?
 ```
 
-Example answer:
+### AI response contract
+
+```ts
+export interface AIInsight {
+  id: string;
+  title: string;
+  summary: string;
+
+  confidence: "low" | "medium" | "high";
+
+  claims: AIClaim[];
+  recommendations: AIRecommendation[];
+  limitations: string[];
+
+  generatedAt: number;
+}
+
+export interface AIClaim {
+  text: string;
+  evidenceIds: string[];
+  confidence: number;
+}
+
+export interface AIRecommendation {
+  action: string;
+  reason: string;
+  optional: boolean;
+}
+```
+
+### Example response
 
 ```text
 BatteryLens AI
 
-Your battery discharged faster yesterday
-than your recent baseline.
+Your battery discharged faster yesterday than your recent baseline.
 
-Available evidence shows:
-
-• higher discharge rate
-• longer period away from a charger
-• no reliable app-level attribution
-
-BatteryLens cannot determine the exact cause
-from the available telemetry alone.
-```
-
-This evidence-first approach is central to the product.
-
----
-
-# 📊 Explainable AI
-
-Every important AI insight should be traceable to evidence.
-
-```ts
-export interface AIClaim {
-  text: string;
-
-  evidence: AIEvidence[];
-
-  confidence:
-    | "low"
-    | "medium"
-    | "high";
-}
-
-export interface AIEvidence {
-  metric: string;
-
-  value: number;
-
-  unit: string;
-
-  timestamp?: number;
-}
-```
-
-UI:
-
-```text
-Why am I seeing this?
-
-Temperature
-31.2°C average
-
-Historical baseline
-29.8°C
-
-Difference
-+1.4°C
+Evidence
+• Discharge rate was above your 14-day median.
+• The battery spent longer away from charging.
+• No reliable app-level cause was exposed by the available telemetry.
 
 Confidence
 Medium
+
+Limitations
+BatteryLens cannot determine the exact application or hardware cause from the available metrics alone.
+```
+
+The phrase **"available telemetry"** is important: the AI should describe limitations instead of filling missing information with guesses.
+
+---
+
+# 🧱 AI Guardrails
+
+The AI layer should apply deterministic protections before and after inference.
+
+```mermaid
+flowchart LR
+    INPUT[Telemetry + User Query] --> SANITIZE[Context Sanitization]
+    SANITIZE --> ALLOW[Capability / Permission Check]
+    ALLOW --> MODEL[Inference]
+    MODEL --> SCHEMA[Schema Validation]
+    SCHEMA --> EVIDENCE[Evidence Validation]
+    EVIDENCE --> POLICY[Safety / Privacy Policy]
+    POLICY --> OUTPUT[User-Facing Insight]
+```
+
+Required checks include:
+
+```text
+✓ No unsupported metrics invented
+✓ Estimated values labeled
+✓ Confidence included
+✓ Evidence IDs resolvable
+✓ Missing data disclosed
+✓ Stale observations handled
+✓ AI output schema validated
+✓ Provider failures handled gracefully
+✓ Sensitive cloud context minimized
 ```
 
 ---
 
-# ⚡ Smart Charging
+# 🔐 Secure AI Gateway
 
-Smart Charging combines:
+Privileged model-provider credentials should never be embedded in the mobile bundle.
 
-```text
-Charging target
-+
-Charging speed
-+
-User schedule
-+
-Historical routine
-+
-Notification preferences
+```mermaid
+sequenceDiagram
+    participant App as React Native App
+    participant API as Backend API
+    participant Auth as Auth Layer
+    participant Context as Context Builder
+    participant AI as AI Gateway
+    participant Model as Model Provider
+
+    App->>API: POST /v1/ai/insights
+    API->>Auth: Validate identity + entitlement
+    Auth-->>API: Authorized
+    API->>Context: Build minimal evidence context
+    Context-->>API: Sanitized context
+    API->>AI: Structured inference request
+    AI->>Model: Prompt / structured input
+    Model-->>AI: Structured model result
+    AI->>AI: Validate schema + evidence
+    AI-->>API: Validated response
+    API-->>App: AIInsight
 ```
 
-Architecture:
+Security goals:
+
+- no provider secret in the client
+- least-privilege backend tokens
+- explicit cloud-AI consent where appropriate
+- minimized contextual payloads
+- server-side entitlement validation
+- auditable AI requests
+- configurable retention and deletion controls
+
+---
+
+# ⚡ Smart Charging Intelligence
+
+Smart Charging combines user-defined targets with observed charging behavior.
 
 ```mermaid
 flowchart TD
     A[Battery Level] --> D[Charging Session]
-    B[Charging Rate] --> D
-    C[User Schedule] --> E[Schedule Engine]
-    D --> F[Charging Intelligence]
-    E --> F
-    F --> G[Target Detection]
-    G --> H[Notification Engine]
-    H --> I[User Action]
-```
-
-Example:
-
-```text
-Target:
-80%
-
-Typical completion:
-7:42 AM
-
-Current charging:
-18.4 W
-
-Estimated completion:
-7:31 AM
-
-Status:
-On schedule
-```
-
----
-
-# 📅 Personalized Charging Schedules
-
-BatteryLens can learn:
-
-* typical charging start times
-* typical charging completion times
-* preferred target percentage
-* weekday behavior
-* weekend behavior
-
-Example:
-
-```text
-Monday–Friday
-Target: 80%
-Completion: ~7:30 AM
-
-Weekend
-Target: 90%
-Completion: ~10:00 AM
-```
-
-The system should only learn from sufficient historical data and clearly distinguish learned patterns from user-entered schedules.
-
----
-
-# 🔔 Notification Architecture
-
-```mermaid
-flowchart TD
-    A[Battery Events] --> B[Rule Engine]
-    B --> C{Should Notify?}
-    C -->|No| D[Ignore]
-    C -->|Yes| E[Debounce]
-    E --> F[Notification Scheduler]
-    F --> G[Notification]
-    G --> H[Deep Link]
-    H --> I[Relevant Screen]
-```
-
-Notification states:
-
-```text
-scheduled
-sent
-cancelled
-expired
-suppressed
-```
-
----
-
-# 📱 Widget-First UX
-
-BatteryLens is designed around the principle:
-
-> **Open the app less. Understand more.**
-
-The application should expose battery intelligence through:
-
-* Home Screen widgets
-* Lock Screen widgets
-* Notifications
-* Deep links
-* Quick actions
-* App shortcuts
-* Connected-device dashboards
-
----
-
-# 🧩 Widget Architecture
-
-```mermaid
-flowchart LR
-    A[Battery Engine]
-    B[Shared State]
-    C[iOS WidgetKit]
-    D[Android AppWidget]
-    E[Lock Screen]
-    F[Home Screen]
-
-    A --> B
-    B --> C
-    B --> D
-    C --> E
-    C --> F
+    B[Charge Rate] --> D
+    C[User Target] --> F[Charging Intelligence]
     D --> F
+    E[Historical Routine] --> F
+    F --> G[Completion Estimate]
+    G --> H[Target Detection]
+    H --> I[Notification Scheduler]
+    I --> J[User Action]
 ```
+
+The system must distinguish:
+
+```text
+Reminder
+  ≠
+Automation
+  ≠
+Hardware control
+```
+
+A notification that the device reached 80% does not imply that BatteryLens physically stopped charging.
 
 ---
 
-# 🟢 Compact Widget
+# 📈 Charging Session Engine
+
+Charging transitions become structured historical events.
 
 ```text
-┌─────────────────────┐
-│ Battery             │
-│                     │
-│       82%           │
-│       ⚡ Charging   │
-└─────────────────────┘
+7:10 AM  — 28%
+    │
+    ├── charger connected
+    │
+    ▼
+Charging Session
+    │
+    ├── startLevel: 28%
+    ├── endLevel: 81%
+    ├── duration: 48 min
+    ├── averagePower: derived
+    ├── peakPower: derived / available
+    └── interruptions: 0
 ```
 
----
-
-# 🔵 Medium Widget
-
-```text
-┌─────────────────────────────────┐
-│ Battery                  82%    │
-│                                 │
-│ Charging                 18.4 W │
-│ Target                    80%   │
-│ ETA                       42m   │
-└─────────────────────────────────┘
-```
-
----
-
-# 🟣 Large Widget
-
-```text
-┌────────────────────────────────────┐
-│ BatteryLens                        │
-│                                    │
-│ 82%                                │
-│ Charging                           │
-│                                    │
-│ Power             18.4 W           │
-│ Temperature        31°C            │
-│ Target              80%            │
-│ ETA                 42 min         │
-│                                    │
-│ AI brief                           │
-│ Charging is close to your normal   │
-│ pattern.                           │
-│                                    │
-│ View insights →                    │
-└────────────────────────────────────┘
-```
-
----
-
-# 🔗 Deep-Link Architecture
-
-```text
-batterylens://battery
-batterylens://charging
-batterylens://health
-batterylens://insights
-batterylens://devices
-batterylens://fleet
-```
-
-React Native routing:
+Contract:
 
 ```ts
-export function handleDeepLink(
-  url: string
-) {
-  if (
-    url.includes(
-      "batterylens://charging"
-    )
-  ) {
-    return "Charging";
-  }
-
-  if (
-    url.includes(
-      "batterylens://health"
-    )
-  ) {
-    return "Health";
-  }
-
-  if (
-    url.includes(
-      "batterylens://fleet"
-    )
-  ) {
-    return "Fleet";
-  }
-
-  return "Home";
-}
-```
-
----
-
-# ⚫ OLED-Optimized Design
-
-BatteryLens provides a true-black dark theme:
-
-```ts
-export const oledDarkTheme = {
-  background: "#000000",
-  surface: "#000000",
-  text: "#FFFFFF",
-  secondaryText: "#A1A1AA",
-  border: "#1F1F23",
-  accent: "#FFFFFF",
-};
-```
-
-The design deliberately avoids:
-
-```text
-continuous gradients
-persistent animations
-large decorative video
-unnecessary blur
-excessive shadows
-```
-
-### Important
-
-The application should not claim that this results in **zero power consumption**.
-
-True black can reduce display power on compatible OLED/AMOLED screens, but total power consumption still depends on:
-
-* display brightness
-* refresh rate
-* CPU activity
-* GPU activity
-* network radios
-* sensors
-* operating-system behavior
-* device hardware
-
-The product claim should therefore be:
-
-> **OLED-optimized true-black interface designed to minimize unnecessary display energy on compatible screens.**
-
----
-
-# 🧭 Zero-Configuration Setup
-
-The core phone battery experience requires no Bluetooth configuration.
-
-The desired flow is:
-
-```mermaid
-flowchart TD
-    A[First Launch] --> B[Initialize Battery Monitoring]
-    B --> C[Show Dashboard]
-    C --> D[Optional Device Discovery]
-    D --> E{Permission}
-    E -->|Granted| F[Scan]
-    E -->|Skipped| G[Continue Normally]
-    F --> H[Show Compatible Devices]
-    H --> I[User Selects Device]
-    I --> J[Explicit Pairing]
-```
-
-The application should never force unnecessary nearby-device permissions just to show the phone's own battery.
-
----
-
-# 📡 Device Discovery
-
-Supported architecture:
-
-```text
-Bluetooth
-Wi-Fi
-Home Assistant
-HomeKit
-Matter
-Smart Plugs
-Future device adapters
-```
-
-Common interface:
-
-```ts
-export interface EcosystemConnector {
+export interface ChargingSession {
   id: string;
+  deviceId: string;
+  startedAt: number;
+  endedAt?: number;
 
-  authenticate():
-    Promise<void>;
+  startLevel: number;
+  endLevel?: number;
 
-  discover():
-    Promise<EcosystemDevice[]>;
+  averagePowerW?: number;
+  peakPowerW?: number;
 
-  read(
-    deviceId: string
-  ):
-    Promise<EnergyObservation>;
-
-  disconnect():
-    Promise<void>;
+  interrupted: boolean;
+  source: ObservationSource;
 }
 ```
 
 ---
 
-# 🌐 Smart Ecosystem Sync
+# 🌡️ Thermal Intelligence
 
-BatteryLens can act as an aggregation layer over supported integrations.
+Temperature can become a context feature for charging and battery behavior when the underlying platform actually exposes it.
+
+Example derived context:
+
+```text
+Observed temperature
+        │
+        ▼
+Personal temperature baseline
+        │
+        ├── normal range
+        ├── elevated range
+        └── unusual range
+                │
+                ▼
+          Insight candidate
+```
+
+The system should report:
+
+```text
+Observed: 31.2°C
+Baseline: 29.8°C
+Difference: +1.4°C
+Confidence: Medium
+```
+
+rather than automatically asserting that temperature caused a battery event.
+
+---
+
+# 📱 React Native Architecture
+
+The mobile application is organized around domain services rather than allowing UI components to contain battery logic.
 
 ```mermaid
-flowchart LR
-    BL[BatteryLens]
-    HA[Home Assistant]
-    HK[Apple Home]
-    M[Matter]
-    SP[Smart Plug]
-    BT[Bluetooth]
-    EV[EV Adapter]
-
-    HA --> BL
-    HK --> BL
-    M --> BL
-    SP --> BL
-    BT --> BL
-    EV --> BL
+flowchart TB
+    SCREENS[Screens] --> VM[View Models / Hooks]
+    VM --> SERVICES[Domain Services]
+    SERVICES --> REPOS[Repositories]
+    REPOS --> LOCAL[(SQLite / Local Store)]
+    REPOS --> NATIVE[Native Modules]
+    REPOS --> API[Optional API Client]
 ```
 
----
-
-# 🏠 Home Assistant
-
-Home Assistant integration uses an adapter around its documented API.
-
-Conceptual architecture:
+Core services include:
 
 ```text
-BatteryLens
-     │
-     ▼
-Home Assistant Connector
-     │
-     ▼
-Home Assistant API
-     │
-     ├── Power sensors
-     ├── Energy sensors
-     ├── Battery entities
-     ├── Temperature sensors
-     └── Smart devices
+BatteryService
+SessionService
+HealthEngine
+PredictiveHealthEngine
+AIManager
+NotificationService
+EcosystemSync
+FamilyService
+FleetService
+MonetizationService
 ```
 
-Example:
-
-```ts
-export class HomeAssistantConnector
-  implements EcosystemConnector {
-
-  id = "homeassistant";
-
-  constructor(
-    private client:
-      HomeAssistantClient
-  ) {}
-
-  async authenticate() {
-    await this.client.request(
-      "/api/"
-    );
-  }
-
-  async discover() {
-    const states =
-      await this.client.request(
-        "/api/states"
-      );
-
-    return mapHAStatesToDevices(
-      states
-    );
-  }
-
-  async read(
-    deviceId: string
-  ) {
-    const state =
-      await this.client.request(
-        `/api/states/${deviceId}`
-      );
-
-    return mapHAStateToObservation(
-      state
-    );
-  }
-
-  async disconnect() {}
-}
-```
-
----
-
-# 🏡 Apple Home / HomeKit
-
-The iOS connector uses native HomeKit APIs.
-
-```swift
-import HomeKit
-
-final class BatteryHomeManager:
-    NSObject,
-    HMHomeManagerDelegate {
-
-    let manager =
-        HMHomeManager()
-
-    override init() {
-        super.init()
-        manager.delegate = self
-    }
-
-    func homeManagerDidUpdateHomes(
-        _ manager: HMHomeManager
-    ) {
-        // Publish updated homes.
-    }
-}
-```
-
-BatteryLens should map supported services and characteristics into the common ecosystem model.
-
----
-
-# 🔌 Smart Plug Integration
-
-A smart plug becomes especially useful when paired with battery charging data.
+This separation allows the same inference logic to be exercised from:
 
 ```text
-Phone battery
-      +
-Smart plug power
-      ↓
-Charging correlation
-      ↓
-Estimated wall energy
-      ↓
-Charging report
-```
-
-Example:
-
-```text
-Phone:
-+31%
-
-Smart plug:
-0.12 kWh
-
-Estimated charging energy:
-0.12 kWh
-
-BatteryLens:
-Charging session appears normal.
-```
-
-Values should be clearly labeled as estimated where appropriate.
-
----
-
-# 🚲 Multi-Device Support
-
-Unified device abstraction:
-
-```ts
-export type EcosystemDeviceType =
-  | "phone"
-  | "tablet"
-  | "laptop"
-  | "ev"
-  | "power-tool"
-  | "smart-plug"
-  | "charger"
-  | "power-station"
-  | "other";
-```
-
-Dashboard:
-
-```text
-┌──────────────────────────────────┐
-│ My Devices                       │
-├──────────────────────────────────┤
-│ iPhone             82% Charging  │
-│ Laptop             64% Battery   │
-│ E-bike             71% Idle      │
-│ Power Station      91% Ready     │
-│ Smart Plug         18 W          │
-└──────────────────────────────────┘
+Mobile UI
+Widgets
+Background event handlers
+Automated tests
+Mock telemetry
+Fleet workflows
 ```
 
 ---
 
-# 👨‍👩‍👧 Family Tracking
+# 🗂 Project Structure
 
-BatteryLens Family introduces shared visibility.
-
-```text
-Family
-├── Dad's phone
-├── Mom's phone
-├── Tablet
-├── Work phone
-└── E-bike
-```
-
-Family dashboard:
-
-```text
-Family Battery
-
-5 devices
-
-Healthy              3
-Charging             1
-Low                  1
-Offline               0
-```
-
----
-
-# 🏢 Fleet Tracking
-
-BatteryLens Fleet is designed for small businesses.
-
-Example:
-
-```text
-24 managed devices
-
-17 healthy
-4 charging
-2 low
-1 offline
-```
-
-Potential fleet devices:
-
-* delivery phones
-* tablets
-* laptops
-* e-bikes
-* barcode scanners
-* power stations
-* supported EV integrations
-
----
-
-# 🏭 Fleet Architecture
-
-```mermaid
-flowchart TD
-    A[Managed Devices] --> B[Device Gateway]
-    B --> C[Fleet API]
-    C --> D[Device Registry]
-    C --> E[Battery History]
-    C --> F[Alert Engine]
-    C --> G[Analytics]
-    G --> H[Fleet AI]
-    H --> I[Manager Dashboard]
-```
-
----
-
-# 👥 Fleet Roles
-
-```ts
-export type BusinessRole =
-  | "owner"
-  | "admin"
-  | "manager"
-  | "operator"
-  | "viewer";
-```
-
-Permission model:
-
-```text
-Owner
-├── Billing
-├── Members
-├── Devices
-├── Reports
-└── Privacy
-
-Admin
-├── Members
-├── Devices
-├── Reports
-└── Privacy
-
-Manager
-├── Devices
-├── Alerts
-└── Reports
-
-Operator
-├── View Fleet
-└── Alerts
-
-Viewer
-└── View Fleet
-```
-
----
-
-# 🚨 Fleet Alerts
-
-Example:
-
-```text
-⚠ Low Battery
-
-Delivery Phone 07
-
-Current:
-13%
-
-Assigned:
-Driver 07
-
-Last seen:
-10 minutes ago
-```
-
-Another example:
-
-```text
-⚠ Offline Device
-
-E-bike 14
-
-Last report:
-42 minutes ago
-```
-
----
-
-# 📈 Fleet AI
-
-BatteryLens can generate aggregate insights.
-
-```text
-Fleet AI
-
-Two devices show unusually low battery
-levels relative to the fleet baseline.
-
-Three devices have not reported recently.
-
-Recommended action:
-Review charging readiness before
-the next operating period.
-```
-
-AI should avoid exposing unnecessary employee information.
-
----
-
-# 🔐 Privacy Architecture
-
-BatteryLens is designed around:
-
-```text
-LOCAL-FIRST
-```
-
-Architecture:
-
-```mermaid
-flowchart TD
-    A[Device] --> B[Local Battery Engine]
-    B --> C[Local Database]
-    C --> D[Local Analytics]
-    D --> E[Local AI]
-
-    E --> F{Cloud Enabled?}
-
-    F -->|No| G[Remain Local]
-    F -->|Yes| H[Privacy Filter]
-    H --> I[Secure API]
-    I --> J[Cloud AI / Sync]
-```
-
----
-
-# 🛡 Privacy Principles
-
-BatteryLens should follow these principles:
-
-### 1. Local by default
-
-Basic battery analytics should work without an account.
-
-### 2. Cloud optional
-
-Cloud AI and cloud sync require explicit opt-in.
-
-### 3. Data minimization
-
-Only send information needed for a specific cloud operation.
-
-### 4. User control
-
-Provide:
-
-```text
-Export data
-Delete data
-Disable cloud sync
-Disable analytics
-Disconnect integrations
-```
-
-### 5. Transparent sharing
-
-Family/fleet users should know what information is shared.
-
----
-
-# 🔒 Secure Storage
-
-Sensitive credentials should use platform-secure storage.
-
-```ts
-export interface CredentialStore {
-  save(
-    namespace: string,
-    value: string
-  ): Promise<void>;
-
-  get(
-    namespace: string
-  ): Promise<string | null>;
-
-  remove(
-    namespace: string
-  ): Promise<void>;
-}
-```
-
-Never store service credentials directly in normal application preferences.
-
----
-
-# 💰 Monetization
-
-BatteryLens uses a layered commercial model.
-
-```text
-FREE
-   ↓
-PRO
-   ↓
-FAMILY
-   ↓
-FLEET LIGHT
-   ↓
-FLEET BUSINESS
-```
-
----
-
-# 🆓 Free
-
-The free product should remain useful.
-
-```text
-✓ Single-device monitoring
-✓ Battery percentage
-✓ Charging state
-✓ Basic sessions
-✓ Basic alerts
-✓ Basic local insights
-✓ Basic widget
-✓ Dark mode
-```
-
----
-
-# ⭐ Pro
-
-```text
-✓ Advanced history
-✓ Predictive analytics
-✓ Advanced AI
-✓ Battery assistant
-✓ Multi-device
-✓ Supported EV integrations
-✓ Ecosystem integrations
-✓ Advanced reports
-✓ Exports
-✓ Ad-free experience
-```
-
----
-
-# 👨‍👩‍👧 Family
-
-```text
-✓ Shared devices
-✓ Household dashboard
-✓ Family alerts
-✓ Multiple members
-✓ Permission controls
-✓ Shared battery reports
-```
-
----
-
-# 🚚 Fleet Light
-
-Designed for small organizations.
-
-```text
-✓ Small fleet management
-✓ Device dashboard
-✓ Low-battery alerts
-✓ Offline alerts
-✓ Fleet reports
-✓ Device assignments
-✓ Team permissions
-```
-
----
-
-# 🏢 Fleet Business
-
-```text
-✓ Larger fleet limits
-✓ Advanced analytics
-✓ Fleet AI
-✓ Device management
-✓ Custom retention
-✓ Ecosystem integrations
-✓ Advanced reporting
-✓ Organization controls
-```
-
----
-
-# 💎 Lifetime Unlock
-
-A lifetime purchase can cover eligible local Pro functionality.
-
-Important architectural distinction:
-
-```text
-Lifetime
-=
-eligible local software features
-
-Subscription
-=
-ongoing cloud services
-+
-cloud AI
-+
-cloud storage
-+
-fleet infrastructure
-```
-
-This prevents the business model from making indefinite cloud costs dependent on a one-time payment.
-
----
-
-# 💵 Entitlement Architecture
-
-```ts
-export interface BusinessEntitlements {
-  maxPersonalDevices: number;
-
-  maxFamilyDevices: number;
-
-  maxFleetDevices: number;
-
-  advancedHistory: boolean;
-
-  predictiveAI: boolean;
-
-  multiDeviceAnalytics: boolean;
-
-  evIntegration: boolean;
-
-  ecosystemSync: boolean;
-
-  familyDashboard: boolean;
-
-  fleetDashboard: boolean;
-
-  fleetAlerts: boolean;
-
-  fleetReports: boolean;
-
-  cloudSync: boolean;
-
-  exports: boolean;
-
-  adsRemoved: boolean;
-}
-```
-
----
-
-# 🧱 Data Architecture
-
-```mermaid
-erDiagram
-
-    USER ||--o{ DEVICE : owns
-
-    USER ||--o{ FAMILY_MEMBER : joins
-
-    FAMILY ||--o{ FAMILY_MEMBER : has
-
-    FAMILY ||--o{ DEVICE : manages
-
-    ORGANIZATION ||--o{ DEVICE : manages
-
-    ORGANIZATION ||--o{ FLEET_MEMBER : has
-
-    DEVICE ||--o{ BATTERY_SAMPLE : produces
-
-    DEVICE ||--o{ CHARGING_SESSION : creates
-
-    DEVICE ||--o{ BATTERY_ALERT : triggers
-
-    DEVICE ||--o{ AI_INSIGHT : generates
-
-    DEVICE {
-        string id
-        string name
-        string type
-        string platform
-        string status
-    }
-
-    BATTERY_SAMPLE {
-        string id
-        datetime timestamp
-        int level
-        boolean charging
-        float temperature
-        float voltage
-        float current
-        float power
-    }
-
-    CHARGING_SESSION {
-        string id
-        datetime startedAt
-        datetime endedAt
-        int startLevel
-        int endLevel
-        float averagePower
-        float peakPower
-    }
-```
-
----
-
-# 🗃 Database Structure
-
-Recommended tables:
-
-```text
-users
-devices
-battery_samples
-charging_sessions
-discharge_sessions
-daily_summaries
-battery_predictions
-ai_insights
-ai_feedback
-notification_settings
-notification_history
-ecosystem_connections
-family_members
-organizations
-fleet_members
-device_assignments
-fleet_alerts
-subscriptions
-entitlements
-sync_queue
-audit_logs
-```
-
----
-
-# 🔌 Domain Interfaces
-
-```ts
-export interface BatteryRepository {
-  saveReading(
-    reading: BatteryReading
-  ): Promise<void>;
-
-  getReadings(
-    from: number,
-    to: number
-  ): Promise<BatteryReading[]>;
-
-  getLatest():
-    Promise<BatteryReading | null>;
-}
-```
-
----
-
-# 🧠 Service Architecture
-
-```text
-UI
-│
-├── BatteryService
-├── SessionService
-├── HealthEngine
-├── PredictiveHealthEngine
-├── AIManager
-├── NotificationService
-├── EcosystemSync
-├── FamilyService
-├── FleetService
-└── MonetizationService
-│
-▼
-Repositories
-│
-├── BatteryRepository
-├── SessionRepository
-├── DeviceRepository
-├── AIRepository
-└── EntitlementRepository
-│
-▼
-Infrastructure
-│
-├── SQLite
-├── Native Modules
-├── Secure Storage
-├── HTTP API
-└── Platform Billing
-```
-
----
-
-# 📁 Project Structure
+The intended architecture is:
 
 ```text
 BatteryLens/
 │
 ├── android/
-│
 ├── ios/
-│
 ├── src/
-│   │
 │   ├── ai/
 │   │   ├── local/
 │   │   ├── cloud/
@@ -1706,6 +893,7 @@ BatteryLens/
 │   │   ├── prediction/
 │   │   ├── insights/
 │   │   ├── prompts/
+│   │   ├── evidence/
 │   │   └── privacy/
 │   │
 │   ├── battery/
@@ -1742,458 +930,434 @@ BatteryLens/
 │   │   ├── lifetime/
 │   │   └── paywall/
 │   │
-│   ├── widgets/
-│   │
-│   ├── notifications/
-│   │
 │   ├── database/
 │   │   ├── migrations/
 │   │   ├── repositories/
 │   │   └── schema/
 │   │
+│   ├── widgets/
+│   ├── notifications/
 │   ├── components/
-│   │
 │   ├── screens/
-│   │
 │   ├── navigation/
-│   │
 │   ├── store/
-│   │
 │   ├── theme/
-│   │
 │   └── utils/
 │
 ├── package.json
 ├── tsconfig.json
-├── README.md
-└── .env.example
+├── .env.example
+└── README.md
 ```
+
+> Directory names above describe the intended modular architecture and should be kept synchronized with the actual repository as implementation evolves.
 
 ---
 
-# 🛠 Installation
+# 🗃️ Data Architecture
 
-Clone the repository:
+```mermaid
+erDiagram
+    USER ||--o{ DEVICE : owns
+    USER ||--o{ FAMILY_MEMBER : joins
+    FAMILY ||--o{ FAMILY_MEMBER : has
+    FAMILY ||--o{ DEVICE : manages
+    ORGANIZATION ||--o{ DEVICE : manages
+    ORGANIZATION ||--o{ FLEET_MEMBER : has
 
-```bash
-git clone https://github.com/YOUR_USERNAME/batterylens.git
+    DEVICE ||--o{ BATTERY_SAMPLE : produces
+    DEVICE ||--o{ CHARGING_SESSION : creates
+    DEVICE ||--o{ DISCHARGE_SESSION : creates
+    DEVICE ||--o{ BATTERY_ALERT : triggers
+    DEVICE ||--o{ BATTERY_PREDICTION : has
+    DEVICE ||--o{ AI_INSIGHT : generates
 
-cd batterylens
+    BATTERY_SAMPLE ||--o{ EVIDENCE_NODE : supports
+    BATTERY_PREDICTION ||--o{ EVIDENCE_NODE : references
+    AI_INSIGHT ||--o{ EVIDENCE_NODE : cites
 ```
 
-Install dependencies:
-
-```bash
-npm install
-```
-
-or:
-
-```bash
-yarn install
-```
-
----
-
-# ▶️ Run the Application
-
-Start Metro:
-
-```bash
-npm start
-```
-
-Android:
-
-```bash
-npm run android
-```
-
-iOS:
-
-```bash
-npm run ios
-```
-
----
-
-# 🧪 TypeScript Validation
-
-```bash
-npx tsc --noEmit
-```
-
-Expected:
+Recommended logical entities:
 
 ```text
-Found 0 errors.
+users
+devices
+battery_samples
+charging_sessions
+discharge_sessions
+daily_summaries
+battery_predictions
+ai_insights
+evidence_nodes
+evidence_relations
+ai_feedback
+notification_settings
+notification_history
+ecosystem_connections
+family_members
+organizations
+fleet_members
+device_assignments
+fleet_alerts
+subscriptions
+entitlements
+sync_queue
+audit_logs
 ```
 
 ---
 
-# 🧹 Lint
+# 🔌 Repository Contracts
 
-```bash
-npm run lint
-```
-
----
-
-# 🧪 Tests
-
-Run:
-
-```bash
-npm test
-```
-
-or:
-
-```bash
-npm test -- --runInBand
-```
-
----
-
-# 📱 Native Testing
-
-BatteryLens requires physical-device testing for many battery behaviors.
-
-Test:
-
-```text
-Android
-├── charging
-├── unplugging
-├── temperature
-├── voltage
-├── current
-└── widget updates
-
-iOS
-├── battery level
-├── charging state
-├── widget timeline
-├── Lock Screen widget
-└── deep links
-```
-
----
-
-# 🧪 Mock Battery Provider
-
-Development builds should include:
+Domain code should depend on interfaces rather than concrete storage engines.
 
 ```ts
-export class MockBatteryProvider
-  implements BatteryProvider {
+export interface BatteryRepository {
+  saveReading(reading: BatteryObservation): Promise<void>;
 
-  async getSnapshot() {
-    return {
-      level: 78,
-      charging: true,
-      status: "charging",
-      temperature: 31,
-      voltage: 4.2,
-      current: 2200,
-      power: 9.24,
-      timestamp:
-        Date.now(),
-    };
-  }
+  getReadings(
+    from: number,
+    to: number,
+  ): Promise<BatteryObservation[]>;
 
-  subscribe(callback) {
-    return () => {};
-  }
+  getLatest(
+    deviceId?: string,
+  ): Promise<BatteryObservation | null>;
 }
 ```
 
-Scenarios:
+Prediction repositories:
 
-```text
-normal
-charging
-low battery
-full
-hot device
-unknown metrics
-offline ecosystem
+```ts
+export interface PredictionRepository {
+  save(prediction: BatteryPrediction): Promise<void>;
+
+  latest(deviceId: string): Promise<BatteryPrediction | null>;
+
+  history(
+    deviceId: string,
+    from: number,
+    to: number,
+  ): Promise<BatteryPrediction[]>;
+}
 ```
+
+This makes the inference layer testable without requiring a real device or network.
 
 ---
 
-# 🔧 Environment Configuration
+# 📡 Ecosystem Adapter Architecture
 
-Create:
+Connected devices should be represented through a common adapter interface.
 
-```bash
-cp .env.example .env
+```ts
+export interface EcosystemConnector {
+  id: string;
+
+  authenticate(): Promise<void>;
+  discover(): Promise<EcosystemDevice[]>;
+  read(deviceId: string): Promise<BatteryObservation>;
+  disconnect(): Promise<void>;
+}
 ```
 
-Example:
-
-```env
-APP_ENV=development
-
-API_URL=http://localhost:3000
-
-CLOUD_SYNC_ENABLED=false
-
-CLOUD_AI_ENABLED=false
-
-ANALYTICS_ENABLED=false
-
-ADS_ENABLED=false
-```
-
-Never commit production secrets.
-
----
-
-# 🤖 Secure AI Gateway
-
-Production AI architecture:
+### Adapter registry
 
 ```mermaid
-sequenceDiagram
+flowchart TB
+    REG[Connector Registry]
+    REG --> BT[Bluetooth Adapter]
+    REG --> HK[HomeKit Adapter]
+    REG --> HA[Home Assistant Adapter]
+    REG --> MATTER[Matter Adapter]
+    REG --> PLUG[Smart Plug Adapter]
+    REG --> EV[EV Adapter]
 
-    participant App
-    participant API
-    participant Auth
-    participant AIGateway
-    participant Model
+    BT --> MODEL[Common Device Model]
+    HK --> MODEL
+    HA --> MODEL
+    MATTER --> MODEL
+    PLUG --> MODEL
+    EV --> MODEL
 
-    App->>API: AI Request
-    API->>Auth: Validate User
-    Auth-->>API: Authorized
-    API->>AIGateway: Sanitized Context
-    AIGateway->>Model: Prompt
-    Model-->>AIGateway: Structured Result
-    AIGateway-->>API: Validated Result
-    API-->>App: AI Response
+    MODEL --> INTEL[Battery Intelligence Engine]
 ```
 
-The mobile application should never contain privileged AI provider credentials.
+### Multi-device abstraction
 
----
-
-# 🔐 Security
-
-Security principles:
-
-```text
-No hardcoded secrets
-No privileged API keys in mobile bundle
-Parameterized database queries
-Secure token storage
-HTTPS for cloud services
-Server-side entitlement validation
-Role-based fleet access
-Minimal telemetry
-Explicit cloud consent
-Deletion controls
-Audit logs
+```ts
+export type EcosystemDeviceType =
+  | "phone"
+  | "tablet"
+  | "laptop"
+  | "ev"
+  | "e-bike"
+  | "power-tool"
+  | "smart-plug"
+  | "charger"
+  | "power-station"
+  | "other";
 ```
 
 ---
 
-# 🧑‍💻 Permissions
+# 👨‍👩‍👧 Family Intelligence
 
-BatteryLens should avoid asking for unrelated permissions.
-
-Core battery functionality:
+The same device graph can support household-level intelligence.
 
 ```text
-Battery API
+Family
+├── Phone
+├── Tablet
+├── Laptop
+├── E-bike
+└── Power Station
 ```
 
-Optional ecosystem features may require:
+Possible household states:
 
 ```text
-Bluetooth
-Nearby devices
-Wi-Fi
-HomeKit
-Notification
+Healthy
+Charging
+Low
+Attention Required
+Offline
 ```
 
-Permission flow:
-
-```text
-Explain
-↓
-Ask
-↓
-User decides
-↓
-Feature continues or gracefully degrades
-```
-
-Do not require Bluetooth to show the user's phone battery percentage.
+Family AI can aggregate **device states and evidence summaries** without requiring every raw battery sample to be exposed to every member.
 
 ---
 
-# 📶 Offline-First Architecture
+# 🏢 Fleet Intelligence
 
-Core functionality should work offline:
+Fleet mode extends the same architecture to managed devices.
+
+```mermaid
+flowchart TD
+    D[Managed Devices] --> G[Device Gateway]
+    G --> API[Fleet API]
+    API --> R[Device Registry]
+    API --> H[Battery History]
+    H --> F[Feature Pipeline]
+    F --> A[Anomaly Engine]
+    F --> P[Prediction Engine]
+    A --> AI[Fleet AI]
+    P --> AI
+    AI --> DASH[Operations Dashboard]
+    A --> ALERTS[Alert Engine]
+    ALERTS --> DASH
+```
+
+Example fleet summary:
+
+```json
+{
+  "totalDevices": 24,
+  "onlineDevices": 23,
+  "chargingDevices": 4,
+  "lowBatteryDevices": 2,
+  "offlineDevices": 1
+}
+```
+
+Fleet AI can prioritize attention using:
+
+```text
+battery risk
+telemetry freshness
+charging anomalies
+historical degradation trend
+operational importance
+```
+
+Any prioritization should remain explainable.
+
+---
+
+# 📶 Offline-First Design
+
+Battery intelligence should remain useful without a network.
+
+```mermaid
+flowchart LR
+    DEVICE[Device Telemetry] --> LOCAL[Local Database]
+    LOCAL --> HISTORY[History]
+    LOCAL --> LOCALAI[Local Inference]
+    LOCALAI --> UI[Mobile UI]
+    LOCAL --> QUEUE[Sync Queue]
+    QUEUE --> NET{Network Available?}
+    NET -->|No| QUEUE
+    NET -->|Yes| CLOUD[Optional Cloud Sync]
+```
+
+Offline-capable functions can include:
 
 ```text
 Battery monitoring
 Charging sessions
 History
-Local AI
+Basic anomaly detection
+Basic AI/heuristic explanations
 Basic alerts
 Widgets
-Basic reports
+Cached reports
 ```
 
-Cloud is optional.
+Cloud AI remains an optional enhancement, not a hard dependency for core battery state.
 
-When network connectivity is unavailable:
+---
+
+# 🔄 Synchronization Strategy
+
+Use a durable queue for optional cloud synchronization.
 
 ```ts
-if (!isOnline()) {
-  return localAI.analyze(
-    input
-  );
+export interface SyncQueueItem {
+  id: string;
+  entityType: string;
+  entityId: string;
+  operation: "create" | "update" | "delete";
+  payload: unknown;
+  attempts: number;
+  createdAt: number;
+  lastAttemptAt?: number;
 }
 ```
 
----
-
-# ⚡ Performance
-
-BatteryLens itself must avoid becoming a battery-draining application.
-
-Avoid:
+Desired behavior:
 
 ```text
-1-second polling
-continuous background JavaScript
-infinite animations
-constant Bluetooth scanning
-large database writes every second
-unnecessary network requests
+Local write
+   ↓
+Durable queue
+   ↓
+Network check
+   ↓
+Retry with backoff
+   ↓
+Server acknowledgement
+   ↓
+Queue compaction
 ```
 
-Prefer:
-
-```text
-OS events
-adaptive sampling
-batched writes
-local caching
-widget refresh throttling
-event-driven monitoring
-```
+Sync must be **idempotent**.
 
 ---
 
-# 📉 Sampling Strategy
+# 📱 Widget & Glanceable Intelligence
 
-Example:
+The design goal is:
+
+> **Open the app less. Understand more.**
+
+Supported experience targets include:
 
 ```text
-Foreground:
-15–30 seconds
-
-Charging:
-adaptive
-
-Background:
-OS-supported events
-
-Significant event:
-immediate sample
+Home Screen widgets
+Lock Screen widgets
+Notifications
+Deep links
+Quick actions
+App shortcuts
+Connected-device dashboards
 ```
 
-The exact strategy should depend on platform capabilities.
+### Widget architecture
+
+```mermaid
+flowchart LR
+    ENGINE[Battery Intelligence] --> STATE[Shared State]
+    STATE --> IOS[WidgetKit]
+    STATE --> AND[Android Widget]
+    IOS --> LOCK[Lock Screen]
+    IOS --> HOME[iOS Home Screen]
+    AND --> AHOME[Android Home Screen]
+```
+
+Widgets should prefer cached, validated state and avoid unnecessary refresh work.
 
 ---
 
-# 🧠 Battery Self-Monitoring
+# 🔔 Notification Engine
 
-BatteryLens can measure its own monitoring overhead during development.
+Notifications are generated from explicit rules and confidence gates.
+
+```mermaid
+flowchart TD
+    A[Battery Event] --> B[Rule Engine]
+    B --> C[Context Check]
+    C --> D{Worth Notifying?}
+    D -->|No| E[Suppress]
+    D -->|Yes| F[Debounce]
+    F --> G[Schedule]
+    G --> H[Notification]
+    H --> I[Deep Link]
+```
+
+Example states:
+
+```text
+scheduled
+sent
+cancelled
+expired
+suppressed
+```
+
+Notification quality is part of the intelligence layer: a technically correct alert can still be a poor system if it is noisy.
+
+---
+
+# 🧪 Mock Telemetry & Deterministic Scenarios
+
+Development builds should provide deterministic battery scenarios so AI and UI behavior can be tested without physical hardware.
 
 ```ts
-export interface MonitoringDiagnostics {
-  batteryEvents: number;
+export type MockScenario =
+  | "normal"
+  | "charging"
+  | "low-battery"
+  | "full"
+  | "hot-device"
+  | "slow-charging"
+  | "rapid-discharge"
+  | "unknown-metrics"
+  | "offline-ecosystem";
+```
 
-  databaseWrites: number;
+Example provider:
 
-  widgetUpdates: number;
+```ts
+export class MockBatteryProvider {
+  constructor(private scenario: MockScenario) {}
 
-  discoveryScans: number;
+  async getSnapshot(): Promise<BatteryObservation> {
+    return buildScenarioObservation(this.scenario);
+  }
 
-  activeTimers: number;
+  subscribe(
+    callback: (reading: BatteryObservation) => void,
+  ): () => void {
+    const timer = setInterval(async () => {
+      callback(await this.getSnapshot());
+    }, 15_000);
+
+    return () => clearInterval(timer);
+  }
 }
 ```
 
-Development dashboard:
-
-```text
-BatteryLens Diagnostics
-
-Battery events       184
-Database writes       21
-Widget updates         4
-Discovery scans        1
-Active timers          0
-```
+Scenario-driven testing is especially valuable for validating AI claims because it lets the test suite know exactly what evidence exists.
 
 ---
 
-# 📊 Observability
+# 🧪 AI Evaluation Framework
 
-Production telemetry should focus on system health.
-
-Track:
-
-```text
-app startup
-native-module errors
-database failures
-notification failures
-billing failures
-AI latency
-AI failure rate
-ecosystem sync errors
-fleet synchronization errors
-```
-
-Avoid collecting detailed battery history merely for analytics.
-
----
-
-# 📈 Product Analytics
-
-Useful events:
-
-```text
-battery_dashboard_viewed
-charging_session_created
-smart_target_enabled
-widget_opened
-ai_insight_viewed
-ai_question_asked
-paywall_viewed
-purchase_started
-purchase_completed
-fleet_created
-device_added
-fleet_alert_resolved
-```
-
-Do not automatically transmit complete battery histories as analytics events.
-
----
-
-# 🧪 AI Evaluation
-
-Create an evaluation suite.
+AI quality should be evaluated separately from UI tests.
 
 ```ts
 export interface AIEvaluationCase {
+  name: string;
   input: AIInput;
 
   expectedProperties: {
@@ -2201,487 +1365,205 @@ export interface AIEvaluationCase {
     identifiesEstimates: boolean;
     citesEvidence: boolean;
     confidenceShown: boolean;
+    acknowledgesMissingData: boolean;
   };
+}
+```
+
+### Example evaluation matrix
+
+| Test | Required behavior |
+|---|---|
+| Missing temperature | AI must not invent a temperature value. |
+| Weak evidence | AI should reduce confidence or decline to infer. |
+| Conflicting signals | AI should acknowledge uncertainty. |
+| Derived power | UI should label power as calculated if inferred from voltage/current. |
+| Prediction | Model should expose an uncertainty range where available. |
+| Offline | Core explanation should fall back to local logic. |
+| Stale data | AI should recognize telemetry freshness limitations. |
+| Unsupported device | Capability should be reported as unavailable. |
+
+### Regression test example
+
+```ts
+describe("Battery AI evidence grounding", () => {
+  it("does not invent temperature", async () => {
+    const result = await localAI.analyze({
+      task: "analyze",
+      observations: [],
+      features: {
+        averageLevel: 72,
+        chargingSessions: 4,
+        rapidDischargeEvents: 0,
+      },
+    });
+
+    expect(result.text).not.toContain("31°C");
+  });
+});
+```
+
+---
+
+# 🧭 Data Provenance Model
+
+Every user-visible metric should be traceable to one of five states:
+
+```text
+MEASURED
+↓
+Directly exposed by device or native API
+
+CALCULATED
+↓
+Derived mathematically from measured values
+
+ESTIMATED
+↓
+Generated through a heuristic or model
+
+AI-GENERATED
+↓
+Natural-language interpretation of evidence
+
+UNAVAILABLE
+↓
+Not exposed or not reliable on the platform/device
+```
+
+Example:
+
+```text
+Battery                    82%       MEASURED
+Charging power             18.4 W    CALCULATED
+Charging ETA               42 min    ESTIMATED
+Battery condition          Good      ESTIMATED / AI
+Manufacturer health value  N/A       UNAVAILABLE
+```
+
+This provenance model is foundational to user trust.
+
+---
+
+# 🛡️ Privacy & Security Architecture
+
+Battery telemetry is potentially sensitive behavioral data. The architecture therefore favors data minimization.
+
+```mermaid
+flowchart TD
+    A[Device Telemetry] --> B[Local Storage]
+    B --> C{Cloud Feature Enabled?}
+    C -->|No| D[Keep Local]
+    C -->|Yes| E[Minimize Payload]
+    E --> F[Encrypt Transport]
+    F --> G[Authenticated API]
+    G --> H[Server Processing]
+```
+
+Principles:
+
+```text
+No hardcoded production secrets
+No privileged AI keys in mobile bundle
+HTTPS for cloud transport
+Secure token storage
+Server-side entitlement checks
+Minimal analytics payloads
+Explicit cloud-AI consent
+Delete/export controls
+Role-based fleet access
+Auditability for sensitive operations
+```
+
+Analytics should not automatically transmit complete battery histories.
+
+---
+
+# ⚡ Performance & Energy Budget
+
+A battery application must not become a battery problem.
+
+Avoid:
+
+```text
+1-second polling
+continuous background JavaScript
+constant Bluetooth scanning
+large database writes every second
+excessive widget refreshes
+unnecessary network requests
+infinite animations
+```
+
+Prefer:
+
+```text
+OS battery events
+adaptive sampling
+batched writes
+local caching
+debounced notifications
+event-driven updates
+widget refresh throttling
+lazy ecosystem discovery
+```
+
+### Adaptive sampling concept
+
+```mermaid
+flowchart TD
+    A[Runtime State] --> B{State Class}
+    B -->|Foreground| C[Moderate Sampling]
+    B -->|Charging| D[Adaptive Sampling]
+    B -->|Background| E[OS Events]
+    B -->|Significant Event| F[Immediate Observation]
+    C --> G[Storage]
+    D --> G
+    E --> G
+    F --> G
+```
+
+The exact cadence should follow platform capabilities and user-visible requirements rather than a universal interval.
+
+---
+
+# 🧪 Self-Monitoring Diagnostics
+
+During development, BatteryLens should measure its own monitoring overhead.
+
+```ts
+export interface MonitoringDiagnostics {
+  batteryEvents: number;
+  databaseWrites: number;
+  widgetUpdates: number;
+  discoveryScans: number;
+  activeTimers: number;
+  networkRequests: number;
 }
 ```
 
 Example:
 
-```ts
-describe(
-  "Battery AI",
-  () => {
+```text
+BatteryLens Diagnostics
 
-    it(
-      "does not invent temperature",
-      async () => {
-
-        const result =
-          await localAI.analyze({
-            task: "analyze",
-            observations: [],
-            features: {
-              averageLevel: 72,
-              chargingSessions: 4,
-              rapidDischargeEvents: 0,
-            },
-          });
-
-        expect(
-          result.text
-        ).not.toContain(
-          "31°C"
-        );
-      }
-    );
-
-  }
-);
+Battery events        184
+Database writes        21
+Widget updates          4
+Discovery scans         1
+Active timers            0
+Network requests         8
 ```
+
+This enables regression testing for battery-impacting implementation changes.
 
 ---
 
-# 🧪 Fleet Testing
+# 🌐 API Architecture
 
-Test:
+Cloud services are optional but can provide synchronization, AI orchestration, family/fleet management, and account-backed features.
 
-```text
-1 device
-5 devices
-25 devices
-100 devices
-offline device
-duplicate device
-retired device
-unauthorized viewer
-expired invitation
-expired subscription
-```
-
----
-
-# 🧪 Permission Testing
-
-Test:
-
-```text
-permission granted
-permission denied
-permission revoked
-permission unavailable
-```
-
-The application should never become unusable simply because optional ecosystem permission was denied.
-
----
-
-# 🧪 Widget Testing
-
-Verify:
-
-```text
-battery level displayed
-charging status displayed
-missing power handled
-stale data handled
-deep link works
-privacy settings respected
-dark mode works
-widget refresh throttled
-```
-
----
-
-# 🧪 Smart Charging Testing
-
-Test:
-
-```text
-target 80%
-target 90%
-target 100%
-target reached
-target already reached
-duplicate notification
-schedule crossing midnight
-weekend schedule
-no charging-rate data
-charging interrupted
-```
-
----
-
-# 🔁 CI/CD
-
-Suggested GitHub Actions pipeline:
-
-```mermaid
-flowchart TD
-    A[Push] --> B[Install]
-    B --> C[TypeScript]
-    C --> D[Lint]
-    D --> E[Unit Tests]
-    E --> F[Android Build]
-    F --> G[iOS Build]
-    G --> H[Artifact]
-```
-
-Example:
-
-```yaml
-name: BatteryLens CI
-
-on:
-  push:
-    branches:
-      - main
-
-  pull_request:
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses:
-          actions/checkout@v4
-
-      - uses:
-          actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - run:
-          npm ci
-
-      - run:
-          npx tsc --noEmit
-
-      - run:
-          npm run lint
-
-      - run:
-          npm test -- --runInBand
-```
-
-Native build jobs can be added separately for Android and iOS.
-
----
-
-# 🗺 Roadmap
-
-## Phase 1 — Foundation
-
-```text
-✓ Battery monitoring
-✓ Local database
-✓ Charging sessions
-✓ Basic alerts
-✓ Dark mode
-✓ Widgets
-```
-
-## Phase 2 — Intelligence
-
-```text
-✓ Personal baselines
-✓ Anomaly detection
-✓ AI insights
-✓ Predictive analytics
-✓ Battery assistant
-✓ Smart charging
-```
-
-## Phase 3 — Ecosystem
-
-```text
-□ Home Assistant
-□ HomeKit
-□ Matter
-□ Smart plugs
-□ Multi-device
-□ E-bike adapters
-□ EV adapters
-```
-
-## Phase 4 — Family
-
-```text
-□ Household accounts
-□ Shared devices
-□ Shared alerts
-□ Family reports
-```
-
-## Phase 5 — Business
-
-```text
-□ Fleet Light
-□ Fleet Business
-□ Device assignments
-□ Team permissions
-□ Fleet AI
-□ Operational reports
-```
-
----
-
-# 🏗 Future Architecture
-
-The long-term system is designed to evolve into:
-
-```mermaid
-flowchart TB
-
-    subgraph DEVICES
-        PHONE[Phone]
-        TABLET[Tablet]
-        LAPTOP[Laptop]
-        EBIKE[E-bike]
-        EV[EV]
-        TOOL[Power Tool]
-        PLUG[Smart Plug]
-    end
-
-    subgraph CONNECTIVITY
-        BLE[Bluetooth]
-        WIFI[Wi-Fi]
-        HA[Home Assistant]
-        HK[HomeKit]
-        MATTER[Matter]
-    end
-
-    subgraph BATTERY_PLATFORM
-        INGEST[Telemetry Ingestion]
-        NORMALIZE[Normalization]
-        DB[(Local Database)]
-        HISTORY[History Engine]
-        BASELINE[Personal Baselines]
-        AI[AI Intelligence]
-        PREDICT[Prediction Engine]
-        ALERTS[Alert Engine]
-    end
-
-    subgraph EXPERIENCE
-        MOBILE[React Native]
-        WIDGETS[Widgets]
-        LOCKSCREEN[Lock Screen]
-        FAMILY[Family Dashboard]
-        FLEET[Fleet Dashboard]
-    end
-
-    PHONE --> INGEST
-    TABLET --> INGEST
-    LAPTOP --> INGEST
-    EBIKE --> CONNECTIVITY
-    EV --> CONNECTIVITY
-    TOOL --> CONNECTIVITY
-    PLUG --> CONNECTIVITY
-
-    BLE --> INGEST
-    WIFI --> INGEST
-    HA --> INGEST
-    HK --> INGEST
-    MATTER --> INGEST
-
-    INGEST --> NORMALIZE
-    NORMALIZE --> DB
-    DB --> HISTORY
-    HISTORY --> BASELINE
-    BASELINE --> AI
-    BASELINE --> PREDICT
-    HISTORY --> ALERTS
-
-    AI --> MOBILE
-    PREDICT --> MOBILE
-    ALERTS --> MOBILE
-
-    MOBILE --> WIDGETS
-    MOBILE --> LOCKSCREEN
-    MOBILE --> FAMILY
-    MOBILE --> FLEET
-```
-
----
-
-# 🧩 Design Philosophy
-
-BatteryLens follows several architectural principles.
-
-## Local First
-
-Core functionality should not require an account.
-
-## Capability First
-
-Features adapt to what the device actually exposes.
-
-## Evidence First
-
-AI claims should be grounded in measurable or derived data.
-
-## Privacy First
-
-Cloud processing should be optional where practical.
-
-## Event Driven
-
-Prefer OS events over constant polling.
-
-## Modular
-
-Every major integration should be an adapter.
-
-## Explainable
-
-Users should understand why BatteryLens generated an insight.
-
-## Non-Intrusive Monetization
-
-The free product should remain genuinely useful.
-
----
-
-# 🧠 The Product Moat
-
-BatteryLens aims to become more valuable over time because the application accumulates a personalized understanding of:
-
-```text
-charging patterns
-discharge patterns
-temperature behavior
-device history
-user schedules
-device ecosystem
-fleet behavior
-AI feedback
-```
-
-This creates a loop:
-
-```mermaid
-flowchart TD
-    A[Use BatteryLens] --> B[Collect Local History]
-    B --> C[Build Personal Baseline]
-    C --> D[Generate Better Insights]
-    D --> E[User Gets More Value]
-    E --> F[User Keeps Using BatteryLens]
-    F --> B
-```
-
-The result is a product that becomes increasingly personalized rather than simply increasing the number of displayed metrics.
-
----
-
-# 💼 Business Model
-
-BatteryLens is designed around several monetization layers.
-
-```text
-                BATTERYLENS
-                     │
-       ┌─────────────┼─────────────┐
-       │             │             │
-     Consumer      Family       Business
-       │             │             │
-      Free        Family        Fleet Light
-       │                         Fleet Business
-      Pro
-       │
-    Lifetime
-```
-
-### Consumer
-
-Recurring revenue from:
-
-* Pro subscriptions
-* AI features
-* cloud synchronization
-* advanced analytics
-
-### Family
-
-Recurring revenue from:
-
-* shared device management
-* alerts
-* household dashboards
-
-### Business
-
-Recurring revenue from:
-
-* fleet monitoring
-* device management
-* reports
-* AI
-* operational visibility
-
----
-
-# 🧱 Recommended Technology Stack
-
-## Mobile
-
-```text
-React Native
-TypeScript
-React Navigation
-Zustand
-Reanimated
-Gesture Handler
-SVG rendering
-SQLite/local persistence
-Native modules
-```
-
-## Android
-
-```text
-Kotlin
-BatteryManager
-BroadcastReceiver
-AppWidgetProvider
-Android notifications
-Nearby-device APIs
-```
-
-## iOS
-
-```text
-Swift
-UIKit
-WidgetKit
-HomeKit
-App Intents
-StoreKit
-App Groups
-```
-
-## Backend
-
-Optional:
-
-```text
-Node.js / NestJS
-or
-Python / FastAPI
-```
-
-Supporting infrastructure:
-
-```text
-PostgreSQL
-Redis
-Object Storage
-HTTPS API
-Secure authentication
-```
-
----
-
-# 🔌 API Architecture
+Suggested service boundaries:
 
 ```text
 /v1/auth
@@ -2699,7 +1581,7 @@ Secure authentication
 /v1/reports
 ```
 
-Example:
+### Example: device summary
 
 ```http
 GET /v1/devices
@@ -2712,6 +1594,7 @@ GET /v1/devices
       "id": "device_001",
       "name": "Work Phone",
       "type": "phone",
+      "platform": "ios",
       "batteryLevel": 82,
       "charging": true
     }
@@ -2719,703 +1602,727 @@ GET /v1/devices
 }
 ```
 
----
-
-# 🏢 Fleet API Example
+### Example: AI insight request
 
 ```http
-GET /v1/fleet/summary
+POST /v1/ai/insights
+Content-Type: application/json
 ```
-
-Response:
 
 ```json
 {
-  "totalDevices": 24,
-  "onlineDevices": 23,
-  "chargingDevices": 4,
-  "lowBatteryDevices": 2,
-  "offlineDevices": 1
+  "deviceId": "device_001",
+  "task": "explain_discharge",
+  "evidenceIds": [
+    "evt_101",
+    "evt_104",
+    "baseline_17"
+  ]
+}
+```
+
+The server should build the authoritative model context from evidence IDs rather than trusting a large opaque client-generated prompt.
+
+---
+
+# 💳 Entitlement Architecture
+
+Features can be gated without putting business logic into the UI.
+
+```ts
+export interface Entitlements {
+  maxPersonalDevices: number;
+  maxFamilyDevices: number;
+  maxFleetDevices: number;
+
+  advancedHistory: boolean;
+  predictiveAI: boolean;
+  multiDeviceIntelligence: boolean;
+  ecosystemSync: boolean;
+  familyDashboard: boolean;
+  fleetDashboard: boolean;
+  fleetAlerts: boolean;
+  fleetReports: boolean;
+  cloudSync: boolean;
+  exports: boolean;
+  adsRemoved: boolean;
+}
+```
+
+The backend remains authoritative for cloud-managed entitlements.
+
+---
+
+# 📊 Observability
+
+Operational telemetry should focus on system reliability rather than capturing unnecessary user battery history.
+
+Track system health such as:
+
+```text
+app startup
+native-module errors
+database failures
+sync failures
+notification failures
+billing failures
+AI latency
+AI error rate
+AI validation failures
+ecosystem connector errors
+fleet synchronization failures
+```
+
+Suggested AI metrics:
+
+```text
+ai_request_count
+ai_success_rate
+ai_latency_ms
+ai_schema_validation_failure_rate
+evidence_resolution_failure_rate
+local_ai_fallback_rate
+cloud_ai_opt_in_rate
+prediction_generation_failure_rate
+```
+
+---
+
+# 🧱 Failure Handling
+
+Every intelligence subsystem needs explicit degraded states.
+
+```mermaid
+flowchart TD
+    A[Request] --> B{Dependency Available?}
+    B -->|Yes| C[Run Intended Path]
+    B -->|No| D{Fallback Available?}
+    D -->|Yes| E[Local / Cached Fallback]
+    D -->|No| F[Explicit Unavailable State]
+    E --> G[Label Limitation]
+    F --> G
+    G --> H[User Experience]
+```
+
+Examples:
+
+```text
+No temperature API
+→ temperature unavailable
+
+No network
+→ local inference / cached history
+
+AI provider timeout
+→ deterministic insight or retryable error
+
+No charging current
+→ omit current-dependent calculations
+
+Permission revoked
+→ feature disabled, core app continues
+
+Stale sample
+→ mark state as stale instead of presenting it as current
+```
+
+---
+
+# 🔗 Deep Links
+
+Example routes:
+
+```text
+batterylens://battery
+batterylens://charging
+batterylens://health
+batterylens://insights
+batterylens://devices
+batterylens://fleet
+```
+
+Deep links should resolve to semantic destinations rather than implementation-specific screens.
+
+```ts
+export function routeForDeepLink(url: string): string {
+  if (url.includes("batterylens://charging")) return "Charging";
+  if (url.includes("batterylens://health")) return "Health";
+  if (url.includes("batterylens://fleet")) return "Fleet";
+  if (url.includes("batterylens://insights")) return "Insights";
+
+  return "Home";
 }
 ```
 
 ---
 
-# 🔐 Entitlement API
+# 🏠 Connected Home Energy Correlation
 
-```http
-GET /v1/entitlements
+Smart plugs and ecosystem data can add external energy context.
+
+```mermaid
+flowchart LR
+    PHONE[Device Battery Delta] --> CORR[Charging Correlation]
+    PLUG[Smart Plug Power] --> CORR
+    CORR --> ENERGY[Estimated Wall Energy]
+    ENERGY --> REPORT[Charging Report]
+    REPORT --> AI[AI Explanation]
 ```
 
-```json
-{
-  "plan": "fleet-light",
-  "features": {
-    "fleetDashboard": true,
-    "fleetAlerts": true,
-    "fleetReports": true,
-    "predictiveAI": true
-  }
-}
-```
-
-The server remains authoritative for server-managed capabilities.
+Important: where wall-energy values are inferred or approximated, they must be labeled **estimated** rather than presented as direct battery energy measurements.
 
 ---
 
-# 📦 Example Battery Event
+# 📱 Platform Architecture
 
-```json
-{
-  "deviceId": "phone_001",
-  "timestamp": "2026-08-27T19:30:00Z",
-  "level": 82,
-  "charging": true,
-  "temperature": 31.2,
-  "voltage": 4.2,
-  "current": 2.1
-}
-```
+## iOS
 
-Derived power:
+The intended native integration surface includes:
 
 ```text
-4.2 V × 2.1 A ≈ 8.82 W
+Swift
+WidgetKit
+HomeKit
+App Intents
+StoreKit
+App Groups
+native battery APIs
 ```
 
-Derived values should be labeled accordingly.
+## Android
+
+The intended native integration surface includes:
+
+```text
+Kotlin
+BatteryManager
+BroadcastReceiver / OS events
+AppWidgetProvider
+notifications
+nearby-device APIs
+```
+
+## Mobile runtime
+
+```text
+React Native
+TypeScript
+React Navigation
+Zustand
+Reanimated
+Gesture Handler
+SVG rendering
+SQLite / local persistence
+native modules
+```
+
+## Optional backend
+
+```text
+Node.js / NestJS
+or
+Python / FastAPI
+
+PostgreSQL
+Redis
+Object Storage
+HTTPS API
+secure authentication
+```
+
+These are architecture targets; keep dependency/version claims synchronized with the actual repository configuration.
 
 ---
 
-# 🧭 User Experience Principles
+# 🚀 Installation
 
-BatteryLens should optimize for:
-
-### Glanceability
-
-Users should understand the main state immediately.
-
-### Progressive Disclosure
-
-Show:
-
-```text
-Simple
-↓
-Useful
-↓
-Detailed
-↓
-Advanced
+```bash
+git clone https://github.com/lucylow/battery_tracker_mobile.git
+cd battery_tracker_mobile
+npm install
 ```
 
-### Zero Friction
+Create environment configuration:
 
-The user should reach useful battery information quickly.
+```bash
+cp .env.example .env
+```
 
-### Trust
+Example environment flags:
 
-Never invent a battery measurement.
+```env
+APP_ENV=development
+API_URL=http://localhost:3000
+CLOUD_SYNC_ENABLED=false
+CLOUD_AI_ENABLED=false
+ANALYTICS_ENABLED=false
+ADS_ENABLED=false
+```
 
-### Control
-
-Users decide whether to:
-
-* share data
-* enable cloud features
-* connect devices
-* join a family
-* join a fleet
-* subscribe
+Never commit production secrets.
 
 ---
 
-# 📱 Final Home Screen Concept
+# ▶️ Development
 
-```text
-┌──────────────────────────────────────────┐
-│ BatteryLens                              │
-│                                          │
-│ Battery                                  │
-│                                          │
-│                  82%                     │
-│               Charging                   │
-│                                          │
-│  18.4 W        31°C        42 min        │
-│  Power         Temp        ETA            │
-│                                          │
-│ ──────────────────────────────────────── │
-│                                          │
-│ AI Battery Brief                         │
-│                                          │
-│ Your charging pattern looks close        │
-│ to your recent baseline.                 │
-│                                          │
-│ Confidence: Medium                       │
-│                                          │
-│ [View Insights]                          │
-│                                          │
-│ ──────────────────────────────────────── │
-│                                          │
-│ Smart Charging                           │
-│ Target: 80%                              │
-│ Typical completion: 7:42 AM              │
-│                                          │
-└──────────────────────────────────────────┘
+Start the React Native development server:
+
+```bash
+npm start
 ```
+
+Run Android:
+
+```bash
+npm run android
+```
+
+Run iOS:
+
+```bash
+npm run ios
+```
+
+TypeScript validation:
+
+```bash
+npx tsc --noEmit
+```
+
+Lint:
+
+```bash
+npm run lint
+```
+
+Tests:
+
+```bash
+npm test
+```
+
+> Keep these commands aligned with the actual scripts in `package.json`.
 
 ---
 
-# 🌎 Ecosystem Dashboard Concept
+# 🧪 Native Device Testing
+
+Physical-device testing is important for battery behavior because available telemetry differs by platform and hardware.
+
+### Android test matrix
 
 ```text
-┌────────────────────────────────────────────┐
-│ Energy & Battery                           │
-├────────────────────────────────────────────┤
-│                                            │
-│ PHONE                   82% ⚡              │
-│ Charging                 18.4 W            │
-│                                            │
-│ LAPTOP                  64%                │
-│ On battery                                 │
-│                                            │
-│ E-BIKE                  71%                │
-│ Ready                                      │
-│                                            │
-│ POWER STATION            91%               │
-│ Idle                                        │
-│                                            │
-│ SMART PLUG               18 W              │
-│                                            │
-│ ────────────────────────────────────────── │
-│ AI Ecosystem Brief                         │
-│ 2 devices are currently charging.         │
-│                                            │
-└────────────────────────────────────────────┘
+charging
+unplugging
+battery level
+temperature availability
+voltage availability
+current availability
+widget refresh
+permission denial
+background behavior
 ```
+
+### iOS test matrix
+
+```text
+battery level
+charging state
+widget timeline
+Lock Screen widget
+deep links
+permission behavior
+HomeKit capability detection
+```
+
+A test should confirm not only the happy path, but also **what happens when a metric does not exist**.
 
 ---
 
-# 🚚 Fleet Dashboard Concept
+# 🔁 CI/CD
 
-```text
-┌────────────────────────────────────────────┐
-│ BatteryLens Fleet                          │
-├────────────────────────────────────────────┤
-│                                            │
-│ 24 Devices                                 │
-│                                            │
-│ Healthy          17                       │
-│ Charging          4                       │
-│ Low               2                       │
-│ Offline            1                      │
-│                                            │
-│ ────────────────────────────────────────── │
-│ Attention Required                         │
-│                                            │
-│ Work Phone 07       13%        ⚠          │
-│ E-bike 14           Offline    ⚠          │
-│                                            │
-│ [Open Fleet]                              │
-└────────────────────────────────────────────┘
+Suggested validation pipeline:
+
+```mermaid
+flowchart TD
+    PUSH[Git Push] --> INSTALL[Install Dependencies]
+    INSTALL --> TYPES[TypeScript]
+    TYPES --> LINT[Lint]
+    LINT --> UNIT[Unit Tests]
+    UNIT --> AI[AI Regression Suite]
+    AI --> SECURITY[Static Security Checks]
+    SECURITY --> ANDROID[Android Build]
+    ANDROID --> IOS[iOS Build]
+    IOS --> ARTIFACT[Release Artifacts]
 ```
+
+Example GitHub Actions validation job:
+
+```yaml
+name: BatteryLens CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm test -- --runInBand
+```
+
+Native release builds can be added as separate jobs or platform-specific pipelines.
 
 ---
 
-# 📚 Documentation Structure
+# 🧪 Test Categories
 
-Recommended future documentation:
-
-```text
-docs/
-├── architecture/
-│   ├── overview.md
-│   ├── battery-engine.md
-│   ├── ai-engine.md
-│   ├── ecosystem.md
-│   └── fleet.md
-│
-├── platform/
-│   ├── android.md
-│   ├── ios.md
-│   ├── widgets.md
-│   └── permissions.md
-│
-├── security/
-│   ├── threat-model.md
-│   ├── privacy.md
-│   └── data-retention.md
-│
-├── business/
-│   ├── pricing.md
-│   ├── entitlements.md
-│   └── fleet-billing.md
-│
-└── development/
-    ├── setup.md
-    ├── testing.md
-    └── release.md
-```
-
----
-
-# 🧑‍💻 Contributing
-
-Contributions are welcome.
-
-## Development process
+BatteryLens should maintain several test layers.
 
 ```text
-Fork
-↓
-Create branch
-↓
-Implement change
-↓
-Write tests
-↓
-Run validation
-↓
-Open Pull Request
-```
+Unit Tests
+├── calculations
+├── feature extraction
+├── session detection
+├── anomaly scoring
+├── prediction transforms
+├── entitlement rules
+└── deep-link routing
 
-Recommended branch format:
+Integration Tests
+├── repositories
+├── sync queue
+├── notification engine
+├── ecosystem adapters
+└── AI gateway contracts
 
-```text
-feature/widget-lockscreen
-feature/homeassistant
-feature/fleet-alerts
-feature/predictive-ai
-fix/battery-session
+AI Evaluations
+├── evidence grounding
+├── uncertainty handling
+├── missing-data handling
+├── structured output validity
+└── regression prompts
+
+Native Tests
+├── iOS battery APIs
+├── Android battery APIs
+├── widgets
+└── OS event delivery
 ```
 
 ---
 
-# ✅ Pull Request Checklist
+# 🧠 AI Evaluation Philosophy
 
-Before submitting:
+The quality bar is not simply:
 
 ```text
-[ ] TypeScript passes
-[ ] Lint passes
-[ ] Unit tests pass
-[ ] No secrets committed
-[ ] Platform limitations documented
-[ ] Accessibility considered
-[ ] Offline behavior considered
-[ ] Privacy impact considered
-[ ] Battery overhead considered
-[ ] Error states implemented
-[ ] Unsupported metrics handled
+"Does the model sound smart?"
+```
+
+It is:
+
+```text
+Is it grounded?
+Is it reproducible?
+Is confidence calibrated?
+Does it expose evidence?
+Does it preserve uncertainty?
+Does it handle missing data correctly?
+Does it avoid inventing telemetry?
+Does it degrade safely?
+```
+
+A technically impressive battery AI system should be **more trustworthy because it knows what it does not know**.
+
+---
+
+# 🗺️ Roadmap
+
+## Phase 1 — Telemetry Foundation
+
+```text
+✓ Battery state
+✓ Charging state
+✓ Local history architecture
+✓ Charging session model
+✓ Mock telemetry
+✓ Basic notifications
+✓ Dark / OLED-oriented UI
+```
+
+## Phase 2 — Intelligence
+
+```text
+✓ Personal baselines
+✓ Feature engineering
+✓ Anomaly detection
+✓ Evidence-backed insights
+✓ Predictive trend architecture
+✓ AI assistant
+✓ Smart charging intelligence
+✓ AI evaluation framework
+```
+
+## Phase 3 — Ecosystem
+
+```text
+□ Home Assistant adapters
+□ HomeKit adapters
+□ Matter adapters
+□ Smart plug correlation
+□ E-bike adapters
+□ EV adapters
+□ Expanded multi-device graph
+```
+
+## Phase 4 — Family
+
+```text
+□ Household accounts
+□ Shared devices
+□ Shared alerts
+□ Household intelligence summaries
+□ Family reports
+```
+
+## Phase 5 — Fleet
+
+```text
+□ Fleet Light
+□ Fleet Business
+□ Device assignments
+□ Team permissions
+□ Fleet AI
+□ Risk prioritization
+□ Operational reports
 ```
 
 ---
 
-# 🧪 Quality Standards
+# 🌌 Future AI Architecture
 
-A BatteryLens feature should not be considered complete until it has:
+The long-term system can evolve into a **Battery Intelligence Graph** connecting devices, telemetry, baselines, anomalies, predictions, user context, and actions.
+
+```mermaid
+flowchart TB
+    subgraph SOURCES[Signal Sources]
+        P[Phone]
+        T[Tablet]
+        L[Laptop]
+        E[E-bike]
+        V[EV]
+        S[Smart Plug]
+        H[Home Systems]
+    end
+
+    subgraph GRAPH[Battery Intelligence Graph]
+        OBS[Observations]
+        EVENTS[Events]
+        BASE[Personal Baselines]
+        FEATURES[Features]
+        ANOM[Anomalies]
+        PRED[Predictions]
+        EVID[Evidence]
+        ACTIONS[Recommended Actions]
+    end
+
+    subgraph AI2[AI Services]
+        EXPLAIN[Explanation Engine]
+        ASSIST[Conversational Assistant]
+        REPORT[Report Generator]
+        PRIORITY[Risk Prioritization]
+    end
+
+    P --> OBS
+    T --> OBS
+    L --> OBS
+    E --> OBS
+    V --> OBS
+    S --> OBS
+    H --> OBS
+
+    OBS --> EVENTS
+    OBS --> BASE
+    EVENTS --> FEATURES
+    BASE --> FEATURES
+    FEATURES --> ANOM
+    FEATURES --> PRED
+    ANOM --> EVID
+    PRED --> EVID
+    EVID --> ACTIONS
+    EVID --> EXPLAIN
+    EVID --> ASSIST
+    EVID --> REPORT
+    EVID --> PRIORITY
+```
+
+This architecture creates a path from:
+
+```text
+Raw telemetry
+→ structured evidence
+→ personalized understanding
+→ predictive intelligence
+→ explainable action
+```
+
+---
+
+# 🏆 Technical Differentiation
+
+BatteryLens is designed to differentiate from simple battery widgets by combining several layers that normally exist separately:
+
+```text
+                    BATTERYLENS AI
+                          │
+      ┌───────────────────┼───────────────────┐
+      │                   │                   │
+  TELEMETRY           INTELLIGENCE         ACTION
+      │                   │                   │
+ Battery state        Baselines           Alerts
+ Charging             Anomalies           Schedules
+ Temperature          Prediction           Widgets
+ Power                Evidence             Reports
+      │                   │                   │
+      └───────────────────┼───────────────────┘
+                          │
+                 Connected Devices
+```
+
+The strongest architectural idea is the **evidence-first AI loop**:
+
+```mermaid
+flowchart LR
+    OBS[Observe] --> NORMALIZE[Normalize]
+    NORMALIZE --> LEARN[Learn Baseline]
+    LEARN --> DETECT[Detect Change]
+    DETECT --> EVIDENCE[Build Evidence]
+    EVIDENCE --> EXPLAIN[Explain]
+    EXPLAIN --> ACT[Recommend / Alert]
+    ACT --> OBS
+```
+
+The system becomes more personalized with continued history without needing to turn raw battery history into opaque analytics data.
+
+---
+
+# ✅ Engineering Completion Standard
+
+A feature is not complete when the UI renders.
+
+A production-ready BatteryLens feature should include:
 
 ```text
 UI
 +
-Domain Logic
+Domain logic
 +
-Error Handling
+Typed contracts
 +
-Empty State
+Error handling
 +
-Loading State
+Loading state
 +
-Unavailable State
+Empty state
 +
-Testing
+Unavailable state
++
+Offline state
++
+Privacy review
++
+Performance review
++
+Unit tests
++
+AI evaluation (where applicable)
 +
 Accessibility
-+
-Privacy Review
-+
-Performance Review
 ```
 
----
-
-# 🚦 Definition of Done
-
-A production feature must satisfy:
+For AI-powered features specifically:
 
 ```text
-Functional
-✓
-
-Tested
-✓
-
-Accessible
-✓
-
-Offline-safe
-✓
-
-Privacy-reviewed
-✓
-
-Platform-aware
-✓
-
-Battery-conscious
-✓
-
-Observable
-✓
+Input contract
+↓
+Evidence selection
+↓
+Feature calculation
+↓
+Inference
+↓
+Schema validation
+↓
+Evidence validation
+↓
+Confidence / uncertainty
+↓
+User-facing explanation
 ```
 
 ---
 
-# 🛡 Platform Capability Philosophy
+# ⚠️ Capability & Trust Model
 
-BatteryLens must always distinguish:
+BatteryLens should clearly separate what the platform can actually measure from what the intelligence layer estimates.
 
 ```text
 MEASURED
-↓
-Directly exposed by device/API
+  Device / OS directly provides the value.
 
 CALCULATED
-↓
-Derived mathematically
+  Value is mathematically derived from measured inputs.
 
 ESTIMATED
-↓
-Generated from a model/heuristic
+  Value is generated by a heuristic or predictive model.
 
 AI-GENERATED
-↓
-Natural-language interpretation
+  Natural-language interpretation of evidence.
 
 UNAVAILABLE
-↓
-Not exposed by platform/device
+  Platform or device does not expose the signal.
 ```
 
-Example:
-
-```text
-Battery
-82%
-MEASURED
-
-Charging power
-18.4 W
-CALCULATED
-
-ETA
-42 min
-ESTIMATED
-
-Battery condition
-Good
-HEURISTIC / AI ESTIMATE
-
-Manufacturer battery health
-UNAVAILABLE
-```
-
-This distinction is foundational to the project's trust model.
-
----
-
-# 🚫 What BatteryLens Does Not Claim
-
-BatteryLens does not automatically claim:
+BatteryLens should not automatically claim:
 
 ```text
 exact battery lifespan
 exact battery replacement date
 exact battery health percentage
-hardware-level charging control
-unsupported device measurements
-perfect EV interoperability
-universal compatibility with every accessory
+universal hardware charging control
+unsupported telemetry values
+perfect compatibility across every EV or accessory
 ```
 
-The platform should prefer transparent uncertainty to false precision.
+The architecture therefore prefers:
+
+> **transparent uncertainty over false precision.**
 
 ---
 
-# 🌟 Long-Term Vision
+# 📜 License
 
-BatteryLens can eventually become an intelligent energy-awareness platform.
-
-```mermaid
-flowchart TB
-
-    USER[User]
-
-    subgraph PERSONAL
-        P1[Phone]
-        P2[Laptop]
-        P3[Tablet]
-    end
-
-    subgraph HOUSEHOLD
-        H1[E-bike]
-        H2[Power Station]
-        H3[Smart Plug]
-    end
-
-    subgraph BUSINESS
-        B1[Work Phones]
-        B2[Tablets]
-        B3[E-bikes]
-        B4[EVs]
-    end
-
-    PERSONAL --> ENGINE
-    HOUSEHOLD --> ENGINE
-    BUSINESS --> ENGINE
-
-    ENGINE[BatteryLens Intelligence Engine]
-
-    ENGINE --> AI[AI]
-    ENGINE --> PREDICT[Prediction]
-    ENGINE --> ALERT[Alerts]
-    ENGINE --> REPORT[Reports]
-
-    AI --> USER
-    PREDICT --> USER
-    ALERT --> USER
-    REPORT --> USER
-```
+See the repository's license file for the authoritative licensing terms.
 
 ---
 
-# 🔋 BatteryLens in One Diagram
+# 🔗 Repository
 
-```text
-                                      ┌─────────────────┐
-                                      │   BATTERYLENS   │
-                                      └────────┬────────┘
-                                               │
-                    ┌──────────────────────────┼──────────────────────────┐
-                    │                          │                          │
-                    ▼                          ▼                          ▼
-              MONITOR                    UNDERSTAND                    ACT
-                    │                          │                          │
-             Battery level                 AI insights                Alerts
-             Charging                     Baselines                  Schedules
-             Temperature                  Trends                     Widgets
-             Power                        Anomalies                  Automation
-             Voltage                      Prediction
-             Current
-                    │                          │                          │
-                    └──────────────────────────┼──────────────────────────┘
-                                               │
-                                               ▼
-                                      PERSONAL HISTORY
-                                               │
-                                               ▼
-                                     CONNECTED ECOSYSTEM
-                                               │
-                    ┌──────────────────────────┼──────────────────────────┐
-                    │                          │                          │
-                 PERSONAL                   FAMILY                    BUSINESS
-                    │                          │                          │
-                 1 device                  Household                  Fleet
-                    │                      Dashboard                  Dashboard
-                    │                      Shared Alerts              Team Roles
-                    │                      Multiple Devices            Reports
-                    │                          │                          │
-                    └──────────────────────────┼──────────────────────────┘
-                                               │
-                                               ▼
-                                         MONETIZATION
-                                               │
-                           ┌───────────────────┼───────────────────┐
-                           │                   │                   │
-                         FREE                PRO               BUSINESS
-                           │                   │                   │
-                      Core utility       Advanced AI        Fleet features
-                      Basic widgets      Prediction          Organizations
-                      Basic alerts       Ecosystem           Reports
-```
+**GitHub:** https://github.com/lucylow/battery_tracker_mobile
 
----
-
-# 📌 Current Project Status
-
-The project architecture is intended to support:
-
-```text
-✅ React Native mobile application
-✅ Android battery integration
-✅ iOS battery integration
-✅ Charging sessions
-✅ Battery history
-✅ Smart charging alerts
-✅ Personalized schedules
-✅ AI insights
-✅ Predictive health modeling
-✅ Explainable AI
-✅ Widgets
-✅ Lock Screen surfaces
-✅ OLED dark mode
-✅ Optional device discovery
-✅ Home Assistant architecture
-✅ HomeKit architecture
-✅ Matter architecture
-✅ Smart plug architecture
-✅ Multi-device dashboard
-✅ Family tracking
-✅ Fleet tracking
-✅ Fleet permissions
-✅ Subscription architecture
-✅ Lifetime Pro architecture
-✅ Privacy-first architecture
-✅ Offline-first core functionality
-```
-
-Some integrations require platform-specific native implementation, external service authorization, or manufacturer-specific adapters.
-
----
-
-# 🧭 Next Engineering Priorities
-
-Recommended implementation order:
-
-```text
-1. Stabilize core battery engine
-2. Stabilize local database
-3. Complete widgets
-4. Complete smart charging
-5. Complete local AI
-6. Complete predictive models
-7. Complete secure entitlement infrastructure
-8. Complete Home Assistant integration
-9. Complete HomeKit integration
-10. Complete multi-device platform
-11. Complete Family
-12. Complete Fleet Light
-13. Complete Fleet Business
-14. Harden security
-15. Performance optimization
-16. Production deployment
-```
-
----
-
-# 📄 License
-
-Add the project's chosen license here.
-
-Example:
-
-```text
-MIT License
-```
-
-or:
-
-```text
-Apache License 2.0
-```
-
-Choose the license deliberately based on whether commercial reuse, patent terms, and modification rights are important to the project.
-
----
-
-# 🙌 Contributing & Community
-
-BatteryLens is intended to evolve through contributions around:
-
-```text
-battery intelligence
-mobile systems
-AI
-energy analytics
-smart homes
-device ecosystems
-privacy engineering
-fleet management
-React Native
-native Android
-native iOS
-```
-
-Pull requests, issue reports, architecture discussions, and platform-specific improvements are encouraged.
-
----
-
-# 🔋 BatteryLens
-
-### **Your battery is more than a percentage.**
-
-BatteryLens turns battery telemetry into:
-
-```text
-UNDERSTANDING
-      +
-CONTEXT
-      +
-PREDICTION
-      +
-ACTION
-```
-
-From:
-
-```text
-one phone
-```
-
-to:
-
-```text
-an entire household
-```
-
-to:
-
-```text
-a fleet of work devices
-```
-
-BatteryLens is designed to become the intelligence layer that helps people understand and manage the battery-powered devices they depend on every day.
-
----
-
-## ⭐ Core Principle
-
-```text
-Measure honestly.
-Explain clearly.
-Predict cautiously.
-Respect privacy.
-Make the free product useful.
-Make premium features genuinely valuable.
-```
-
----
-
-## 📬 Project Links
-
-Replace these placeholders with the actual project URLs:
-
-```text
-GitHub:
-https://github.com/YOUR_USERNAME/batterylens
-
-Documentation:
-https://github.com/YOUR_USERNAME/batterylens/tree/main/docs
-
-Issues:
-https://github.com/YOUR_USERNAME/batterylens/issues
-
-Releases:
-https://github.com/YOUR_USERNAME/batterylens/releases
-```
-
----
-
-# 🔋 BatteryLens
-
-> **Monitor less. Understand more.**
+**Project concept:** AI-driven battery monitoring, telemetry intelligence, predictive health, smart charging, ecosystem synchronization, family visibility, and fleet battery intelligence.
