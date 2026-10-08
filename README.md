@@ -1,6 +1,6 @@
 # 🔋 BatteryLens
 
-### Personal Battery Intelligence for Phones, Laptops, E-Bikes, EVs & Connected Devices
+### Personal Battery Intelligence for Phones, Laptops, E-Bikes, EVs & Connected Devices 
 
 > **Understand your battery. Anticipate patterns. Act before downtime.**
 
