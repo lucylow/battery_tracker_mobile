@@ -10,6 +10,20 @@ The repository is designed around a React Native + TypeScript mobile client with
 
 > **Important:** this README intentionally distinguishes **measured**, **calculated**, **estimated**, **AI-generated**, and **unavailable** values. BatteryLens should never manufacture telemetry that a device or platform does not expose.
 
+![](https://github.com/lucylow/battery_tracker_mobile/blob/main/6757.png?raw=true)
+
+![](https://github.com/lucylow/battery_tracker_mobile/blob/main/657575.png?raw=true)
+
+![](https://github.com/lucylow/battery_tracker_mobile/blob/main/7.png?raw=true)
+
+
+![](https://github.com/lucylow/battery_tracker_mobile/blob/main/765756.png?raw=true)
+
+![](https://github.com/lucylow/battery_tracker_mobile/blob/main/6.png?raw=true)
+
+![](https://github.com/lucylow/battery_tracker_mobile/blob/main/8.png?raw=true)
+
+
 ---
 
 ## 🧠 What BatteryLens Is
